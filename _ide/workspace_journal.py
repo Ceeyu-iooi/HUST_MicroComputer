@@ -44,3 +44,12 @@ comp.build()
 
 comp = client.create_app_component(name="TASK_INT",platform = "$COMPONENT_LOCATION/../CPU_noint/export/CPU_noint/CPU_noint.xpfm",domain = "standalone_microblaze_0")
 
+status = platform.build()
+
+comp = client.get_component(name="TASK_INT")
+comp.build()
+
+status = platform.build()
+
+comp.build()
+

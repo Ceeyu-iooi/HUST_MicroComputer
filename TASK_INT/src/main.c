@@ -4,7 +4,7 @@
 #include "xtmrctr_l.h"
 #include "xgpio_l.h"
 
-#define RESET_VALUE0  100000000 - 2
+#define RESET_VALUE0  100000 - 2
 #define RESET_VALUE1  100000 - 2
 #define STEP_PACE 10000000
 
@@ -15,10 +15,11 @@ void timer_handle();
 void timer0_handle();
 void timer1_handle();
 
-char segtable[16] = {0xc0, 0xf9, 0xa4, 0xb0, 0x99, 0x92, 0x82, 0xf8,
-                      0x80, 0x98, 0x88, 0x83, 0xc6, 0xa1, 0x86, 0x8e};
-char segcode[4] = {0xc0, 0xc0, 0xc0, 0xc0};
-short poscode[4] = {0xf7, 0xfb, 0xfd, 0xfe};
+
+char segtable[5]={0xc6,0xc1,0xc7,0x88,0xa1};//段码表CULRd
+char segcode[8]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0};//显示缓冲区
+short poscode[8] = {0x7F, 0xBF, 0xDF, 0xEF, 0xf7, 0xfb, 0xfd, 0xfe}; // 8位数码管位码表，低电平选中，从左到右对应第1~8个
+int mask;
 
 int ledbits = 0;
 int pos = 0;
@@ -26,19 +27,19 @@ int pos = 0;
 int main()
 {
     // GPIO 输入/输出配置
-    Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_TRI_OFFSET, 0xffff);
-    Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_TRI2_OFFSET, 0x0);
+    Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_TRI_OFFSET,0xffff); // 设置开关为输入
+    Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_TRI2_OFFSET,0x0); // 设置LED为输出
+    Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_TRI_OFFSET,0x0); // 设置数码管位选为输出
+    Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_TRI2_OFFSET,0x0); // 设置数码管段码为输出
+    Xil_Out8(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_TRI_OFFSET,0x1f); // 设置按键为输入
 
-    Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, 0x1);
-    Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_TRI_OFFSET, 0x0);
-    Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_TRI2_OFFSET, 0x0);
-    Xil_Out32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_TRI_OFFSET, 0x1f);
 
     // GPIO 中断使能
     Xil_Out32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET,
               Xil_In32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET));
     Xil_Out32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_IER_OFFSET,
               XGPIO_GIE_ENABLE_MASK);
+              
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_IER_OFFSET,
               XGPIO_CH_IER_MASK);
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_GIER_OFFSET,
@@ -46,23 +47,24 @@ int main()
 
     // 初始化 T0
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET,
-              ~XTC_CSR_ENABLE_TMR_MASK);
-    Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TLR_OFFSET, RESET_VALUE0);
+              ~XTC_CSR_ENABLE_TMR_MASK);// 关闭 T0
+    Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TLR_OFFSET, RESET_VALUE0);// 设置初值
     Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET,
-             XTC_CSR_LOAD_MASK);
+             XTC_CSR_LOAD_MASK);// 载入初值
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET,
               (Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET) &
               ~XTC_CSR_AUTO_RELOAD_MASK) | XTC_CSR_ENABLE_INT_MASK |
-              XTC_CSR_DOWN_COUNT_MASK | XTC_CSR_INT_OCCURED_MASK);
-
+              XTC_CSR_DOWN_COUNT_MASK | XTC_CSR_INT_OCCURED_MASK);// 启动 T0
+    //(原状态 & ~屏蔽位) | 开启位1 | 开启位2 | 开启位3
     // 初始化 T1
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET,
-              ~XTC_CSR_ENABLE_TMR_MASK);
-    Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TLR_OFFSET, RESET_VALUE1);
+              ~XTC_CSR_ENABLE_TMR_MASK);// 关闭 T1
+    Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + 
+                XTC_TIMER_COUNTER_OFFSET + XTC_TLR_OFFSET, RESET_VALUE1);// 设置初值        
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET,
               (Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET) &
               ~XTC_CSR_AUTO_RELOAD_MASK) | XTC_CSR_ENABLE_INT_MASK |
-              XTC_CSR_DOWN_COUNT_MASK | XTC_CSR_INT_OCCURED_MASK);
+              XTC_CSR_DOWN_COUNT_MASK | XTC_CSR_INT_OCCURED_MASK);// 启动 T1
 
     // 初始化 INTC、开中断
     Xil_Out32(XPAR_AXI_INTC_0_BASEADDR + XIN_IAR_OFFSET,

@@ -1,0 +1,4 @@
+domain_path: D:\Vivado\Vitis\Projects\CPU_INT\export\CPU_INT\sw\standalone_microblaze_0
+app_src_dir: D:\Vivado\Vitis\2024.2\data\embeddedsw\lib\sw_apps\empty_application
+template: empty_application
+lang: c

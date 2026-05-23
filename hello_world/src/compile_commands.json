@@ -1,0 +1,12 @@
+[
+{
+  "directory": "D:/Vivado/Vitis/Projects/hello_world/build",
+  "command": "D:\\Vivado\\Vitis\\2024.2\\gnu\\microblaze\\nt\\bin\\mb-gcc.exe -isystem D:/Vivado/Vitis/Projects/CPU_INT/export/CPU_INT/sw/standalone_microblaze_0/include -isystem D:/Vivado/Vitis/2024.2/gnu/microblaze/nt/x86_64-oesdk-mingw32/usr/lib/microblaze-xilinx-elf/gcc/microblaze-xilinx-elf/13.3.0/include -isystem D:/Vivado/Vitis/2024.2/gnu/microblaze/nt/x86_64-oesdk-mingw32/usr/lib/microblaze-xilinx-elf/gcc/microblaze-xilinx-elf/13.3.0/include-fixed -isystem D:/Vivado/Vitis/2024.2/gnu/microblaze/nt/microblazeeb-xilinx-elf/usr/include  -O2 -mlittle-endian -mxl-soft-mul -mcpu=v11.0 -DSDT  -MMD -MP -specs=D:/Vivado/Vitis/Projects/CPU_INT/export/CPU_INT/sw/standalone_microblaze_0/Xilinx.spec -ID:/Vivado/Vitis/Projects/CPU_INT/export/CPU_INT/sw/standalone_microblaze_0/include -Wall -Wextra      -O0  -g3     -U__clang__ \"-D__FILENAME__='__FILE__'\" -o CMakeFiles\\hello_world.elf.dir\\helloworld.c.obj -c D:\\Vivado\\Vitis\\Projects\\hello_world\\src\\helloworld.c",
+  "file": "D:\\Vivado\\Vitis\\Projects\\hello_world\\src\\helloworld.c"
+},
+{
+  "directory": "D:/Vivado/Vitis/Projects/hello_world/build",
+  "command": "D:\\Vivado\\Vitis\\2024.2\\gnu\\microblaze\\nt\\bin\\mb-gcc.exe -isystem D:/Vivado/Vitis/Projects/CPU_INT/export/CPU_INT/sw/standalone_microblaze_0/include -isystem D:/Vivado/Vitis/2024.2/gnu/microblaze/nt/x86_64-oesdk-mingw32/usr/lib/microblaze-xilinx-elf/gcc/microblaze-xilinx-elf/13.3.0/include -isystem D:/Vivado/Vitis/2024.2/gnu/microblaze/nt/x86_64-oesdk-mingw32/usr/lib/microblaze-xilinx-elf/gcc/microblaze-xilinx-elf/13.3.0/include-fixed -isystem D:/Vivado/Vitis/2024.2/gnu/microblaze/nt/microblazeeb-xilinx-elf/usr/include  -O2 -mlittle-endian -mxl-soft-mul -mcpu=v11.0 -DSDT  -MMD -MP -specs=D:/Vivado/Vitis/Projects/CPU_INT/export/CPU_INT/sw/standalone_microblaze_0/Xilinx.spec -ID:/Vivado/Vitis/Projects/CPU_INT/export/CPU_INT/sw/standalone_microblaze_0/include -Wall -Wextra      -O0  -g3     -U__clang__ \"-D__FILENAME__='__FILE__'\" -o CMakeFiles\\hello_world.elf.dir\\platform.c.obj -c D:\\Vivado\\Vitis\\Projects\\hello_world\\src\\platform.c",
+  "file": "D:\\Vivado\\Vitis\\Projects\\hello_world\\src\\platform.c"
+}
+]

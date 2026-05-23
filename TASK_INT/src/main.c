@@ -56,15 +56,7 @@ int main()
               ~XTC_CSR_AUTO_RELOAD_MASK) | XTC_CSR_ENABLE_INT_MASK |
               XTC_CSR_DOWN_COUNT_MASK | XTC_CSR_INT_OCCURED_MASK);// 启动 T0
     //(原状态 & ~屏蔽位) | 开启位1 | 开启位2 | 开启位3
-    // 初始化 T1
-    Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET,
-              ~XTC_CSR_ENABLE_TMR_MASK);// 关闭 T1
-    Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + 
-                XTC_TIMER_COUNTER_OFFSET + XTC_TLR_OFFSET, RESET_VALUE1);// 设置初值        
-    Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET,
-              (Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET) &
-              ~XTC_CSR_AUTO_RELOAD_MASK) | XTC_CSR_ENABLE_INT_MASK |
-              XTC_CSR_DOWN_COUNT_MASK | XTC_CSR_INT_OCCURED_MASK);// 启动 T1
+
 
     // 初始化 INTC、开中断
     Xil_Out32(XPAR_AXI_INTC_0_BASEADDR + XIN_IAR_OFFSET,
@@ -96,7 +88,7 @@ void My_ISR()
         timer_handle();
     }
 
-    Xil_Out32(XPAR_AXI_INTC_0_BASEADDR + XIN_IAR_OFFSET, status);
+    Xil_Out32(XPAR_AXI_INTC_0_BASEADDR + XIN_IAR_OFFSET, status);// 清中断标志
 }
 
 // 开关中断服务程序

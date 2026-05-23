@@ -1,9 +1,9 @@
-# 0 "D:\\Vivado\\Vitis\\Projects\\CPU_noint\\hw\\sdt\\system-top.dts"
+# 0 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER\\hw\\sdt\\system-top.dts"
 # 0 "<built-in>"
 # 0 "<command-line>"
-# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_noint\\hw\\sdt\\system-top.dts"
+# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER\\hw\\sdt\\system-top.dts"
 /dts-v1/;
-# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_noint\\hw\\sdt\\pl.dtsi" 1
+# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER\\hw\\sdt\\pl.dtsi" 1
 / {
  cpus_microblaze_0: cpus_microblaze@0 {
   #cpu-mask-cells = <1>;
@@ -185,7 +185,7 @@
    #interrupt-cells = <2>;
    xlnx,sense-of-irq-edge-type = "Rising";
    xlnx,edk-special = "INTR_CTRL";
-   xlnx,kind-of-intr = <0x8>;
+   xlnx,kind-of-intr = <0x0>;
    xlnx,kind-of-edge = <0xffffffff>;
    xlnx,irq-is-level = <1>;
    xlnx,has-ivr = <1>;
@@ -203,7 +203,7 @@
    xlnx,s-axi-aclk-freq-mhz = <100>;
    xlnx,num-sw-intr = <0>;
    xlnx,irq-connection = <0>;
-   xlnx,num-intr-inputs = <0x4>;
+   xlnx,num-intr-inputs = <0x3>;
    xlnx,has-sie = <1>;
    xlnx,enable-async = <0>;
    xlnx,has-cie = <1>;
@@ -219,7 +219,7 @@
    xlnx,has-fast = <1>;
    xlnx,ivar-rst-val = <0x10>;
    interrupt-controller;
-   xlnx,async-intr = <0xfffffff0>;
+   xlnx,async-intr = <0xfffffff8>;
    xlnx,name = "axi_intc_0";
   };
   axi_gpio_0: gpio@40000000 {
@@ -257,15 +257,12 @@
    xlnx,all-inputs = <1>;
   };
   axi_gpio_1: gpio@40010000 {
-   #interrupt-cells = <2>;
-   interrupts = < 1 2 >;
    xlnx,gpio-board-interface = "seven_seg_led_an";
    compatible = "xlnx,axi-gpio-2.0" , "xlnx,xps-gpio-1.00.a";
    xlnx,all-outputs = <0>;
    #gpio-cells = <2>;
    xlnx,gpio-width = <8>;
    clock-frequency = <100000000>;
-   interrupt-parent = <&axi_intc_0>;
    xlnx,rable = <0>;
    xlnx,dout-default = <0x0>;
    xlnx,is-dual = <1>;
@@ -276,7 +273,7 @@
    clocks = <&clk_bus_0>;
    xlnx,all-outputs-2 = <0>;
    gpio-controller;
-   xlnx,interrupt-present = <1>;
+   xlnx,interrupt-present = <0>;
    xlnx,gpio2-board-interface = "dual_seven_seg_led_disp";
    xlnx,edk-iptype = "PERIPHERAL";
    xlnx,dout-default-2 = <0x0>;
@@ -284,15 +281,13 @@
    xlnx,gpio2-width = <8>;
    clock-names = "s_axi_aclk";
    xlnx,use-board-flow;
-   interrupt-controller;
-   interrupt-names = "ip2intc_irpt";
    xlnx,tri-default = <0xffffffff>;
    xlnx,name = "axi_gpio_1";
    xlnx,all-inputs = <0>;
   };
   axi_gpio_2: gpio@40020000 {
    #interrupt-cells = <2>;
-   interrupts = < 2 2 >;
+   interrupts = < 1 2 >;
    xlnx,gpio-board-interface = "push_buttons_5bits";
    compatible = "xlnx,axi-gpio-2.0" , "xlnx,xps-gpio-1.00.a";
    xlnx,all-outputs = <0>;
@@ -324,13 +319,33 @@
    xlnx,name = "axi_gpio_2";
    xlnx,all-inputs = <1>;
   };
+  axi_timer_0: timer@41c00000 {
+   interrupts = < 2 2 >;
+   compatible = "xlnx,axi-timer-2.0" , "xlnx,xps-timer-1.00.a";
+   xlnx,gen1-assert = <1>;
+   clock-frequency = <100000000>;
+   xlnx,trig0-assert = <1>;
+   interrupt-parent = <&axi_intc_0>;
+   xlnx,rable = <0>;
+   xlnx,count-width = <32>;
+   xlnx,ip-name = "axi_timer";
+   xlnx,one-timer-only = <0>;
+   reg = <0x41c00000 0x10000>;
+   clocks = <&clk_bus_0>;
+   xlnx,gen0-assert = <1>;
+   xlnx,mode-64bit = <0>;
+   xlnx,edk-iptype = "PERIPHERAL";
+   status = "okay";
+   xlnx,trig1-assert = <1>;
+   xlnx,enable-timer2 = <1>;
+   interrupt-names = "interrupt";
+   xlnx,name = "axi_timer_0";
+  };
   axi_uartlite_0: serial@40600000 {
-   interrupts = < 3 0 >;
    compatible = "xlnx,axi-uartlite-2.0" , "xlnx,xps-uartlite-1.00.a";
    clock-frequency = <100000000>;
    xlnx,uartlite-board-interface = "usb_uart";
    xlnx,s-axi-aclk-freq-hz-d = <100>;
-   interrupt-parent = <&axi_intc_0>;
    xlnx,rable = <0>;
    xlnx,ip-name = "axi_uartlite";
    reg = <0x40600000 0x10000>;
@@ -342,7 +357,6 @@
    xlnx,odd-parity = <0>;
    status = "okay";
    xlnx,use-board-flow;
-   interrupt-names = "interrupt";
    xlnx,name = "axi_uartlite_0";
    xlnx,data-bits = <8>;
    xlnx,parity = "No_Parity";
@@ -418,7 +432,7 @@
   };
  };
 };
-# 3 "D:\\Vivado\\Vitis\\Projects\\CPU_noint\\hw\\sdt\\system-top.dts" 2
+# 3 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER\\hw\\sdt\\system-top.dts" 2
 / {
  board = "nexys4_ddr";
  compatible = "xlnx,nexys4_ddr";
@@ -447,7 +461,8 @@
          <0x40010000 &axi_gpio_1 0x40010000 0x10000>,
          <0x40020000 &axi_gpio_2 0x40020000 0x10000>,
          <0x40600000 &axi_uartlite_0 0x40600000 0x10000>,
-         <0x41200000 &axi_intc_0 0x41200000 0x10000>;
+         <0x41200000 &axi_intc_0 0x41200000 0x10000>,
+         <0x41c00000 &axi_timer_0 0x41c00000 0x10000>;
   #ranges-address-cells = <0x1>;
   #ranges-size-cells = <0x1>;
  };

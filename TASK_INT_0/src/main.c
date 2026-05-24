@@ -181,5 +181,8 @@ void timer_handle()
     {
         pos = 0;
     }
+
+    Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET,
+              Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET) | XTC_CSR_INT_OCCURED_MASK);//清除中断标志位
 }
 

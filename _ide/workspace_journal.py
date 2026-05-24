@@ -12,3 +12,47 @@ status = platform.build()
 comp = client.get_component(name="TASK_INT_0")
 comp.build()
 
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+platform = client.get_component(name="CPU_noint")
+status = platform.build()
+
+comp = client.get_component(name="TASK_NOINT_")
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+vitis.dispose()
+

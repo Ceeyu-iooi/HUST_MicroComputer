@@ -19,7 +19,7 @@ int main()
     xil_printf("\r\nRunning GPIO Test(Poll)\r\n");
 
     char segtable[5]={0xc6,0xc1,0xc7,0x88,0xa1};//段码表CULRd
-    char segcode[8]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0};//显示缓冲区
+    char segcode[8]={0xff,0xff,0xff,0xff,0xFF,0xFF,0xFF,0xFF};//显示缓冲区
     short poscode[8] = {0x7F, 0xBF, 0xDF, 0xEF, 0xf7, 0xfb, 0xfd, 0xfe}; // 8位数码管位码表，低电平选中，从左到右对应第1~8个
     int mask;
 
@@ -31,7 +31,7 @@ int main()
             while((Xil_In8(XPAR_AXI_GPIO_2_BASEADDR+XGPIO_DATA_OFFSET)&0x1f)!=0);//等待按键松开
             xil_printf("The pushed button's code is 0x%x\n",button);
         
-
+            
             for(int j=0;j<5;j++)
             {
                 if(button&(0x01<<j))
@@ -47,8 +47,8 @@ int main()
                 segcode[digit_index]=segcode[digit_index+1];  
             }
             segcode[7]=segtable[mask];
-
-            while((Xil_In8(XPAR_AXI_GPIO_2_BASEADDR+XGPIO_DATA_OFFSET)&0x1f)==0)
+        }
+            //while((Xil_In8(XPAR_AXI_GPIO_2_BASEADDR+XGPIO_DATA_OFFSET)&0x1f)==0)
             //如果没有按键按下，继续循环（或者删掉这个，把前面一个while的括号放在判断按键前，有button按下才更新button值）
                 for(int i=0;i<8;i++)//循环显示8位数码管
                 {
@@ -71,7 +71,7 @@ int main()
                     }
                     };
                 }
-                }
+                
 
     }
         

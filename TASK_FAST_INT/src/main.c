@@ -28,7 +28,7 @@ void timer_handle();
 int mask;
 int pos = 0;
 char segtable[5]={0xc6,0xc1,0xc7,0x88,0xa1};//段码表CULRd
-char segcode[8]={0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};//显示缓冲区
+char segcode[8]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0};//显示缓冲区
 short poscode[8] = {0x7F, 0xBF, 0xDF, 0xEF, 0xf7, 0xfb, 0xfd, 0xfe}; // 8位数码管位码表，低电平选中，从左到右对应第1~8个
 
 int main()
@@ -139,13 +139,7 @@ void button_handle()
 {
     char button;
     button = Xil_In8(XPAR_AXI_GPIO_2_BASEADDR+XGPIO_DATA_OFFSET)&0x1f;
-    if(button==0)//如果是按键松开引起的中断,则不处理
-    {
-        Xil_Out32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET,
-            Xil_In32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET));//清除状态标志
-        return;
-    }
-    //while((Xil_In8(XPAR_AXI_GPIO_2_BASEADDR+XGPIO_DATA_OFFSET)&0x1f)!=0);//等待按键松开
+    while((Xil_In8(XPAR_AXI_GPIO_2_BASEADDR+XGPIO_DATA_OFFSET)&0x1f)!=0);//等待按键松开
     xil_printf("The pushed button's code is 0x%x\n",button);
 
     //判断按下的按键，并将对应的段码索引保存在mask中

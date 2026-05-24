@@ -9,7 +9,7 @@
 #include "xparameters.h"
 #include "mb_interface.h"
 
-#define RESET_VALUE0  100000 - 2// T0 初值 0.001s扫描数码管
+#define RESET_VALUE0  1000 - 2// T0 初值0.000001s扫描数码管
 #define RESET_VALUE1  100000 - 2
 #define STEP_PACE 10000000
 
@@ -62,15 +62,21 @@ void Initialization(void)
 
     // 初始化 T0
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET,
-              ~XTC_CSR_ENABLE_TMR_MASK);// 关闭 T0
+              Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET) 
+              & ~XTC_CSR_ENABLE_TMR_MASK);// 关闭 T0
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TLR_OFFSET, RESET_VALUE0);// 设置初值
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET,
-             XTC_CSR_LOAD_MASK);// 载入初值
+              Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET)
+              | XTC_CSR_LOAD_MASK);// 载入初值
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET,
               (Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET) &
-              ~XTC_CSR_AUTO_RELOAD_MASK) | XTC_CSR_ENABLE_INT_MASK |
-              XTC_CSR_DOWN_COUNT_MASK | XTC_CSR_INT_OCCURED_MASK);// 启动 T0
-    //(原状态 & ~屏蔽位) | 开启位1 ENT| 开启位2 减计数| 开启位3  TINT 请中断状态
+              ~XTC_CSR_LOAD_MASK) | // 清除加载位
+              XTC_CSR_ENABLE_INT_MASK |// 使能 T0 中断
+              XTC_CSR_AUTO_RELOAD_MASK|// 使能 T0 自动重载
+              XTC_CSR_DOWN_COUNT_MASK | // 设置为减计数模式
+              XTC_CSR_INT_OCCURED_MASK|//清除中断标志位
+            XTC_CSR_ENABLE_TMR_MASK);// 使能 T0定时器
+    //(原状态 & ~屏蔽位) | 开启位1 | 开启位2 | 开启位3 | 开启位4 
 
 
     // 初始化 INTC、开中断
@@ -119,8 +125,10 @@ void switch_handle()
     short int sw;
     sw = Xil_In16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA_OFFSET); // 读取开关状态
     Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET,sw); // 点亮对应的 Leds
-    xil_printf("Switch = 0x%X\r\n",sw); // 通过 Uart 打印开关状态
-    
+    if(sw)//如果开关被按下,因为开关关闭时也会触发中断,所以这里要判断是否是开关按下
+    {
+        xil_printf("Switch = 0x%X\r\n",sw); // 通过 Uart 打印开关状态
+    }
     // 清除状态标志
     Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_ISR_OFFSET,
         Xil_In16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_ISR_OFFSET)); 
@@ -143,10 +151,12 @@ void button_handle()
             break;
         }
     }
-
-    //根据按键选择段码并刷新显示缓冲区
-    for(int digit_index=0;digit_index<8;digit_index++)
-    segcode[7-digit_index]=segtable[mask];  
+    //更新显示缓冲区,将新的段码放到最右边，其他位向左移动一位
+    for(int digit_index=0;digit_index<7;digit_index++)
+    {
+        segcode[digit_index]=segcode[digit_index+1];  
+    }
+    segcode[7]=segtable[mask];
 
     // 清除状态标志
     Xil_Out32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET,
@@ -155,12 +165,17 @@ void button_handle()
 
 }
 
-// 定时器中断服务程序: 只做一件事扫描数码管（0.001s）（段码和位码已经处理好）
+// 定时器中断服务程序: 只做一件事扫描数码管（0.000001s）（段码和位码已经处理好）
 void timer_handle()
 {
-    xil_printf("TIMER");
-    Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_DATA2_OFFSET,segcode[mask]);//输出段码到数码管段码引脚
+    //xil_printf("TIMER");
+    //消影显示
+    Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_DATA_OFFSET,0xff); // 输出位码到数码管位选引脚
+    Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_DATA2_OFFSET,0xff); // 输出段码到数码管段码引脚
+
     Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_DATA_OFFSET,poscode[pos]); // 输出位码到数码管位选引脚
+    Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_DATA2_OFFSET,segcode[pos]);//输出段码到数码管段码引脚
+    
     pos++;
     if(pos == 8)
     {

@@ -41,13 +41,19 @@ int main()
                 }
             }//判断按下的按键，并将对应的段码索引保存在mask中
 
+            //将显示缓冲区向左移动一位，将新段码插入到最右边
+            for(int digit_index=0;digit_index<7;digit_index++)
+            {
+                segcode[digit_index]=segcode[digit_index+1];  
+            }
+            segcode[7]=segtable[mask];
+
             while((Xil_In8(XPAR_AXI_GPIO_2_BASEADDR+XGPIO_DATA_OFFSET)&0x1f)==0)
             //如果没有按键按下，继续循环（或者删掉这个，把前面一个while的括号放在判断按键前，有button按下才更新button值）
                 for(int i=0;i<8;i++)//循环显示8位数码管
                 {
                     //根据按键选择段码并刷新显示缓冲区
-                    for(int digit_index=0;digit_index<8;digit_index++)
-                    segcode[7-digit_index]=segtable[mask];
+                    
                     
                     Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_DATA2_OFFSET,segcode[i]);//输出段码到数码管段码引脚
                     Xil_Out8(XPAR_AXI_GPIO_1_BASEADDR + XGPIO_DATA_OFFSET,poscode[i]); // 输出位码到数码管位选引脚

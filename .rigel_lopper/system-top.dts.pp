@@ -1,9 +1,9 @@
-# 0 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER\\hw\\sdt\\system-top.dts"
+# 0 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER_1\\hw\\sdt\\system-top.dts"
 # 0 "<built-in>"
 # 0 "<command-line>"
-# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER\\hw\\sdt\\system-top.dts"
+# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER_1\\hw\\sdt\\system-top.dts"
 /dts-v1/;
-# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER\\hw\\sdt\\pl.dtsi" 1
+# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER_1\\hw\\sdt\\pl.dtsi" 1
 / {
  cpus_microblaze_0: cpus_microblaze@0 {
   #cpu-mask-cells = <1>;
@@ -28,7 +28,7 @@
    d-cache-highaddr = <0x3fffffff>;
    xlnx,dcache-force-tag-lutram = <0>;
    xlnx,pc-width = <32>;
-   xlnx,interrupt-is-edge = <0>;
+   xlnx,interrupt-is-edge = <1>;
    reg = <0x0>;
    xlnx,async-interrupt = <1>;
    xlnx,use-mmu = <0>;
@@ -187,7 +187,7 @@
    xlnx,edk-special = "INTR_CTRL";
    xlnx,kind-of-intr = <0x0>;
    xlnx,kind-of-edge = <0xffffffff>;
-   xlnx,irq-is-level = <1>;
+   xlnx,irq-is-level = <0>;
    xlnx,has-ivr = <1>;
    compatible = "xlnx,axi-intc-4.1" , "xlnx,xps-intc-1.00.a";
    xlnx,disable-synchronizers = <1>;
@@ -432,7 +432,7 @@
   };
  };
 };
-# 3 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER\\hw\\sdt\\system-top.dts" 2
+# 3 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER_1\\hw\\sdt\\system-top.dts" 2
 / {
  board = "nexys4_ddr";
  compatible = "xlnx,nexys4_ddr";

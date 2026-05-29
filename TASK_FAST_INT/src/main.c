@@ -9,7 +9,7 @@
 #include "xparameters.h"
 #include "mb_interface.h"
 
-#define RESET_VALUE0  1000 - 2// T0 初值0.000001s扫描数码管
+#define RESET_VALUE0  1000 - 2// T0 初值0.000001s扫描数码管1us
 #define RESET_VALUE1  100000 - 2
 #define STEP_PACE 10000000
 
@@ -33,7 +33,7 @@ void timer_handle(void) __attribute__((fast_interrupt));
 int mask;
 int pos = 0;
 char segtable[5]={0xc6,0xc1,0xc7,0x88,0xa1};//段码表CULRd
-char segcode[8]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0};//显示缓冲区
+char segcode[8]={0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};//显示缓冲区
 short poscode[8] = {0x7F, 0xBF, 0xDF, 0xEF, 0xf7, 0xfb, 0xfd, 0xfe}; // 8位数码管位码表，低电平选中，从左到右对应第1~8个
 
 int main()

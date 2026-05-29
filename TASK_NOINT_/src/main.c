@@ -29,9 +29,9 @@ int main()
         {
             button = Xil_In8(XPAR_AXI_GPIO_2_BASEADDR+XGPIO_DATA_OFFSET)&0x1f;
             while((Xil_In8(XPAR_AXI_GPIO_2_BASEADDR+XGPIO_DATA_OFFSET)&0x1f)!=0);//等待按键松开
+
             xil_printf("The pushed button's code is 0x%x\n",button);
-        
-            
+
             for(int j=0;j<5;j++)
             {
                 if(button&(0x01<<j))
@@ -66,7 +66,10 @@ int main()
                     {
                         sw = Xil_In16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA_OFFSET); // 读取开关状态
                         Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET,sw); // 点亮对应的 Leds
+                        if(sw)//如果开关被按下,因为开关关闭时也会触发中断,所以这里要判断是否是开关按下
+                        {
                         xil_printf("Switch = 0x%X\r\n",sw); // 通过 Uart 打印开关状态
+                        }
                         Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_ISR_OFFSET,0x01); // 清除状态标志
                     }
                     };

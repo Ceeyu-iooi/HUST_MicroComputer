@@ -1,0 +1,27 @@
+axi_gpio_0:
+- axi_gpio
+- gpio
+axi_gpio_1:
+- axi_gpio
+- gpio
+axi_gpio_2:
+- axi_gpio
+- gpio
+axi_intc_0:
+- axi_intc
+- intc
+axi_quad_spi_0:
+- axi_quad_spi
+- spi
+axi_timer_0:
+- axi_timer
+- tmrctr
+axi_uartlite_0:
+- axi_uartlite
+- uartlite
+axi_uartlite_1:
+- axi_uartlite
+- uartlite
+axi_uartlite_2:
+- axi_uartlite
+- uartlite

@@ -1,9 +1,9 @@
-# 0 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER_1\\hw\\sdt\\system-top.dts"
+# 0 "D:\\Vivado\\Vitis\\Projects\\CPU_UART\\hw\\sdt\\system-top.dts"
 # 0 "<built-in>"
 # 0 "<command-line>"
-# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER_1\\hw\\sdt\\system-top.dts"
+# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_UART\\hw\\sdt\\system-top.dts"
 /dts-v1/;
-# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER_1\\hw\\sdt\\pl.dtsi" 1
+# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_UART\\hw\\sdt\\pl.dtsi" 1
 / {
  cpus_microblaze_0: cpus_microblaze@0 {
   #cpu-mask-cells = <1>;
@@ -185,7 +185,7 @@
    #interrupt-cells = <2>;
    xlnx,sense-of-irq-edge-type = "Rising";
    xlnx,edk-special = "INTR_CTRL";
-   xlnx,kind-of-intr = <0x0>;
+   xlnx,kind-of-intr = <0x38>;
    xlnx,kind-of-edge = <0xffffffff>;
    xlnx,irq-is-level = <0>;
    xlnx,has-ivr = <1>;
@@ -203,7 +203,7 @@
    xlnx,s-axi-aclk-freq-mhz = <100>;
    xlnx,num-sw-intr = <0>;
    xlnx,irq-connection = <0>;
-   xlnx,num-intr-inputs = <0x3>;
+   xlnx,num-intr-inputs = <0x6>;
    xlnx,has-sie = <1>;
    xlnx,enable-async = <0>;
    xlnx,has-cie = <1>;
@@ -219,7 +219,7 @@
    xlnx,has-fast = <1>;
    xlnx,ivar-rst-val = <0x10>;
    interrupt-controller;
-   xlnx,async-intr = <0xfffffff8>;
+   xlnx,async-intr = <0xffffffe0>;
    xlnx,name = "axi_intc_0";
   };
   axi_gpio_0: gpio@40000000 {
@@ -319,6 +319,55 @@
    xlnx,name = "axi_gpio_2";
    xlnx,all-inputs = <1>;
   };
+  axi_quad_spi_0: axi_quad_spi@44a00000 {
+   interrupts = < 5 0 >;
+   xlnx,select-xpm = <0>;
+   compatible = "xlnx,axi-quad-spi-3.2" , "xlnx,xps-spi-2.00.a";
+   xlnx,lsb-stup = <0>;
+   xlnx,num-ss-bits = <0x1>;
+   xlnx,hasfifos = <1>;
+   xlnx,xip-mode = <0>;
+   xlnx,use-startup-ext = <0>;
+   xlnx,s-axi4-addr-width = <24>;
+   xlnx,byte-level-interrupt-en = <0>;
+   num-cs = <0x1>;
+   xlnx,xip-perf-mode = <1>;
+   xlnx,sck-ratio = <4>;
+   xlnx,s-axi4-id-width = <4>;
+   fifo-size = <16>;
+   interrupt-parent = <&axi_intc_0>;
+   xlnx,rable = <0>;
+   xlnx,multiples16 = <1>;
+   xlnx,master-mode = <1>;
+   xlnx,shared-startup = <0>;
+   xlnx,ip-name = "axi_quad_spi";
+   xlnx,qspi-board-interface = "Custom";
+   reg = <0x44a00000 0x10000>;
+   xlnx,dual-quad-mode = <0>;
+   xlnx,new-seq-en = <1>;
+   bits-per-word = <16>;
+   xlnx,num-transfer-bits = <16>;
+   xlnx,spi-memory = <1>;
+   xlnx,s-axi4-data-width = <32>;
+   xlnx,edk-iptype = "PERIPHERAL";
+   xlnx,slaveonly = <0>;
+   xlnx,use-startup-int = <0>;
+   xlnx,use-startup = <0>;
+   xlnx,type-of-axi4-interface = <0>;
+   xlnx,async-clk = <1>;
+   xlnx,spi-mode = <0>;
+   xlnx,sck-ratio1 = <1>;
+   status = "okay";
+   xlnx,fifo-depth = <16>;
+   xlnx,uc-family = <0>;
+   xlnx,spi-mem-addr-bits = <24>;
+   xlnx,axi-interface = <0>;
+   interrupt-names = "ip2intc_irpt";
+   xlnx,Axi4-address = <0>;
+   xlnx,fifo-included = <1>;
+   xlnx,sub-family = "artix7";
+   xlnx,name = "axi_quad_spi_0";
+  };
   axi_timer_0: timer@41c00000 {
    interrupts = < 2 2 >;
    compatible = "xlnx,axi-timer-2.0" , "xlnx,xps-timer-1.00.a";
@@ -358,6 +407,50 @@
    status = "okay";
    xlnx,use-board-flow;
    xlnx,name = "axi_uartlite_0";
+   xlnx,data-bits = <8>;
+   xlnx,parity = "No_Parity";
+  };
+  axi_uartlite_1: serial@40610000 {
+   interrupts = < 3 0 >;
+   compatible = "xlnx,axi-uartlite-2.0" , "xlnx,xps-uartlite-1.00.a";
+   clock-frequency = <100000000>;
+   xlnx,uartlite-board-interface = "Custom";
+   xlnx,s-axi-aclk-freq-hz-d = <100>;
+   interrupt-parent = <&axi_intc_0>;
+   xlnx,rable = <0>;
+   xlnx,ip-name = "axi_uartlite";
+   reg = <0x40610000 0x10000>;
+   xlnx,baudrate = <9600>;
+   clocks = <&clk_bus_0>;
+   current-speed = <9600>;
+   xlnx,use-parity = <0>;
+   xlnx,edk-iptype = "PERIPHERAL";
+   xlnx,odd-parity = <0>;
+   status = "okay";
+   interrupt-names = "interrupt";
+   xlnx,name = "axi_uartlite_1";
+   xlnx,data-bits = <8>;
+   xlnx,parity = "No_Parity";
+  };
+  axi_uartlite_2: serial@40620000 {
+   interrupts = < 4 0 >;
+   compatible = "xlnx,axi-uartlite-2.0" , "xlnx,xps-uartlite-1.00.a";
+   clock-frequency = <100000000>;
+   xlnx,uartlite-board-interface = "Custom";
+   xlnx,s-axi-aclk-freq-hz-d = <100>;
+   interrupt-parent = <&axi_intc_0>;
+   xlnx,rable = <0>;
+   xlnx,ip-name = "axi_uartlite";
+   reg = <0x40620000 0x10000>;
+   xlnx,baudrate = <9600>;
+   clocks = <&clk_bus_0>;
+   current-speed = <9600>;
+   xlnx,use-parity = <0>;
+   xlnx,edk-iptype = "PERIPHERAL";
+   xlnx,odd-parity = <0>;
+   status = "okay";
+   interrupt-names = "interrupt";
+   xlnx,name = "axi_uartlite_2";
    xlnx,data-bits = <8>;
    xlnx,parity = "No_Parity";
   };
@@ -432,7 +525,7 @@
   };
  };
 };
-# 3 "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER_1\\hw\\sdt\\system-top.dts" 2
+# 3 "D:\\Vivado\\Vitis\\Projects\\CPU_UART\\hw\\sdt\\system-top.dts" 2
 / {
  board = "nexys4_ddr";
  compatible = "xlnx,nexys4_ddr";
@@ -453,6 +546,9 @@
  };
  aliases {
   serial0 = &axi_uartlite_0;
+  spi0 = &axi_quad_spi_0;
+  serial1 = &axi_uartlite_1;
+  serial2 = &axi_uartlite_2;
  };
  cpus_microblaze_0: cpus_microblaze@0 {
   address-map = <0x00000000 &microblaze_0_local_memory_dlmb_bram_if_cntlr_memory 0x00000000 0x8000>,
@@ -461,8 +557,11 @@
          <0x40010000 &axi_gpio_1 0x40010000 0x10000>,
          <0x40020000 &axi_gpio_2 0x40020000 0x10000>,
          <0x40600000 &axi_uartlite_0 0x40600000 0x10000>,
+         <0x40610000 &axi_uartlite_1 0x40610000 0x10000>,
+         <0x40620000 &axi_uartlite_2 0x40620000 0x10000>,
          <0x41200000 &axi_intc_0 0x41200000 0x10000>,
-         <0x41c00000 &axi_timer_0 0x41c00000 0x10000>;
+         <0x41c00000 &axi_timer_0 0x41c00000 0x10000>,
+         <0x44a00000 &axi_quad_spi_0 0x44a00000 0x10000>;
   #ranges-address-cells = <0x1>;
   #ranges-size-cells = <0x1>;
  };

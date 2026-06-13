@@ -1,0 +1,53 @@
+flowchart TD
+    Start["程序启动"]
+    Start --> PrintHeader["UART打印:\nRunning GPIO Test Interrupt"]
+    PrintHeader --> InitGPIO["① GPIO方向配置\n开关=输入 LED=输出\n位选=输出 段码=输出\n按键=输入"]
+    InitGPIO --> InitIntr["② GPIO中断使能\nGPIO_2: 清ISR-使能IER-使能GIE\nGPIO_0: 清ISR-使能IER-使能GIE"]
+    InitIntr --> InitTimer["③ TIMER_0初始化\n关闭-设初值998-载入\n自动重载+减计数+中断使能\n清标志+启动"]
+    InitTimer --> InitIntc["④ INTC初始化\n清IAR 三条中断线\n使能IER 三条中断线\n使能MER Master+Hardware"]
+    InitIntc --> InitCPU["⑤ CPU中断使能\nmicroblaze_enable_interrupts"]
+    InitCPU --> MainIdle["while(1) 主循环\nCPU空转等待中断"]
+    MainIdle --> IntEvent["中断事件发生\nGPIO_0 / GPIO_2 / TIMER_0"]
+    IntEvent --> ISR0["My_ISR入口\ninterrupt_handler"]
+    ISR0 --> ISR1["读取INTC中断状态\nstatus = XIN_ISR_OFFSET"]
+    ISR1 --> Check0{"status & 0x1\n等于 0x1 ?\nGPIO_0中断"}
+    Check0 -->|是| CallSw["调用 switch_handle"]
+    Check0 -->|否| Check2{"status & 0x2\n等于 0x2 ?\nGPIO_2中断"}
+    CallSw --> Check2
+    Check2 -->|是| CallBtn["调用 button_handle"]
+    Check2 -->|否| CheckTmr{"status & 0x4\n等于 0x4 ?\nTIMER中断"}
+    CallBtn --> CheckTmr
+    CheckTmr -->|是| CallTmr["调用 timer_handle"]
+    CheckTmr -->|否| ClearIar["清除INTC中断标志\nIAR = status"]
+    CallTmr --> ClearIar
+    ClearIar --> MainIdle
+
+    CallSw --> Sw1["switch_handle入口"]
+    Sw1 --> Sw2["读取开关数据\nsw = GPIO_0_DATA"]
+    Sw2 --> Sw3["更新LED\nGPIO_0_DATA2 = sw"]
+    Sw3 --> Sw4{"sw 不为 0 ?"}
+    Sw4 -->|是| Sw5["UART打印开关值"]
+    Sw5 --> Sw6["清除中断标志\nGPIO_0_ISR"]
+    Sw4 -->|否| Sw6
+    Sw6 --> SwRet["返回My_ISR"]
+
+    CallBtn --> Btn1["button_handle入口"]
+    Btn1 --> Btn2["读取按键值\nbutton = GPIO_2_DATA & 0x1F"]
+    Btn2 --> Btn3{"button 等于 0 ?\n松开事件"}
+    Btn3 -->|是 松开| Btn8["清除中断标志并返回"]
+    Btn3 -->|否 按下| Btn4["UART打印按键编码"]
+    Btn4 --> Btn5["解析按键位索引 mask"]
+    Btn5 --> Btn6["显示缓冲区左移"]
+    Btn6 --> Btn7["新段码插入最右位"]
+    Btn7 --> Btn8
+    Btn8 --> BtnRet["返回My_ISR"]
+
+    CallTmr --> Tmr1["timer_handle入口\n每1us触发一次"]
+    Tmr1 --> Tmr2["消影\n位码=0xFF 段码=0xFF"]
+    Tmr2 --> Tmr3["输出当前位\n位码=poscode[pos]\n段码=segcode[pos]"]
+    Tmr3 --> Tmr4["pos加1"]
+    Tmr4 --> Tmr5{"pos 等于 8 ?"}
+    Tmr5 -->|是| Tmr6["pos = 0"]
+    Tmr5 -->|否| Tmr7["清除TIMER中断标志\nTCSR = INT_OCCURED"]
+    Tmr6 --> Tmr7
+    Tmr7 --> TmrRet["返回My_ISR"]

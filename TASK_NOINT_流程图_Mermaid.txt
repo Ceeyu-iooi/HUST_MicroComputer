@@ -1,0 +1,29 @@
+flowchart TD
+    Start["程序启动"]
+    Start --> InitGPIO["初始化GPIO\n开关=输入 LED=输出\n数码管位选=输出 段码=输出\n按键=输入"]
+    InitGPIO --> InitVars["初始化变量\nsegtable段码表\nsegcode显示缓冲区\nposcode位码表"]
+    InitVars --> PrintMsg["UART打印:\nRunning GPIO Test Poll"]
+    PrintMsg --> MainLoop{"while(1) 主循环"}
+    MainLoop --> WaitKey{"轮询按键\nGPIO_2_DATA & 0x1F\n不等于 0 ?"}
+    WaitKey -->|否 无按键| DispScan["数码管扫描\nfor i = 0 to 7"]
+    WaitKey -->|是 有按键| ReadBtn["读取按键值\nbutton = GPIO_2_DATA & 0x1F"]
+    ReadBtn --> WaitRel{"等待按键松开\n(GPIO_2_DATA & 0x1F)\n等于 0 ?"}
+    WaitRel -->|否| WaitRel
+    WaitRel -->|是| PrintBtn["UART打印按键编码\nxil_printf button"]
+    PrintBtn --> FindMask["解析按键位索引\nfor j=0..4 找出 mask"]
+    FindMask --> ShiftBuf["显示缓冲区左移\nsegcode左移一位"]
+    ShiftBuf --> UpdateLast["新段码插入最右位\nsegcode[7]=segtable[mask]"]
+    UpdateLast --> DispScan
+    DispScan --> OutSeg["输出段码+位码到GPIO_1"]
+    OutSeg --> DelayLoop{"软件延时\nfor j = 0 to 999"}
+    DelayLoop -->|循环中轮询开关| PollSw{"读 GPIO_0_ISR\n& 0x0001 ?"}
+    PollSw -->|否| DelayLoop
+    PollSw -->|是| ReadSw["读取开关状态\nsw = GPIO_0_DATA"]
+    ReadSw --> UpdateLED["更新LED输出\nGPIO_0_DATA2 = sw"]
+    UpdateLED --> SwCheck{"sw 不为 0 ?"}
+    SwCheck -->|是| UartSw["UART打印开关值\nxil_printf Switch"]
+    UartSw --> ClrSwFlag["清除开关中断标志\nGPIO_0_ISR = 0x01"]
+    SwCheck -->|否| ClrSwFlag
+    ClrSwFlag --> DelayLoop
+    DelayLoop -->|j=999完成| NextPos["i加1"]
+    NextPos --> DispScan

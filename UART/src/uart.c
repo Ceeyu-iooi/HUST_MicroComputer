@@ -88,7 +88,8 @@ void Initialization(void)
     // UART中断：仅在INTC中使能，UART控制寄存器中暂不使能。
     // 发送数据时动态使能接收端UART中断，接收完成后关闭，
     // 以防止发送FIFO空导致的中断风暴。
-
+    Xil_Out32(XPAR_AXI_UARTLITE_2_BASEADDR + XUL_CONTROL_REG_OFFSET, XUL_CR_ENABLE_INTR | XUL_CR_FIFO_TX_RESET | XUL_CR_FIFO_RX_RESET);
+    Xil_Out32(XPAR_AXI_UARTLITE_1_BASEADDR + XUL_CONTROL_REG_OFFSET, XUL_CR_ENABLE_INTR | XUL_CR_FIFO_TX_RESET | XUL_CR_FIFO_RX_RESET);
     // ==========================================
     // 定时器T0配置（数码管动态扫描）
     // ==========================================
@@ -177,8 +178,9 @@ void switch_handle(void)
                   sw & 0xff);
         // 重置接收端状态，准备接收新的两字节数据
         sw_byte_count = 0;
-        // 使能UART2中断以接收开关值
-        Xil_Out32(XPAR_AXI_UARTLITE_2_BASEADDR + XUL_CONTROL_REG_OFFSET, XUL_CR_ENABLE_INTR);
+     //开启UART2中断使能
+    //Xil_Out32(XPAR_AXI_UARTLITE_2_BASEADDR + XUL_CONTROL_REG_OFFSET,
+             // XUL_CR_ENABLE_INTR | XUL_CR_FIFO_TX_RESET | XUL_CR_FIFO_RX_RESET);
 
 
     // 清除GPIO中断状态
@@ -203,8 +205,6 @@ void button_handle(void)
     xil_printf("Button value: %d\n", button);
     // 通过UART2 TX发送按键值
     Xil_Out32(XPAR_AXI_UARTLITE_2_BASEADDR + XUL_TX_FIFO_OFFSET, button);
-    // 使能UART1中断以接收按键码
-    Xil_Out32(XPAR_AXI_UARTLITE_1_BASEADDR + XUL_CONTROL_REG_OFFSET, XUL_CR_ENABLE_INTR);
 
     // 清除GPIO中断状态
     Xil_Out32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET,
@@ -213,32 +213,32 @@ void button_handle(void)
 
 // UART1中断处理函数：
 // 接收UART2 TX发来的按键码，判断按下的按键，更新数码管段码显示缓冲区。
+// 使用while循环排空RX FIFO中的所有字节，再复位FIFO，防止数据丢失。
 void uart1_handle(void)
 {
-    xil_printf("UART1_handle\n");
-    // 仅在接收FIFO有有效数据时处理（忽略TX空的中断）
-    if (!(Xil_In32(XPAR_AXI_UARTLITE_1_BASEADDR + XUL_STATUS_REG_OFFSET) & XUL_SR_RX_FIFO_VALID_DATA))
-        return;
-
-    unsigned char data = Xil_In32(XPAR_AXI_UARTLITE_1_BASEADDR + XUL_RX_FIFO_OFFSET);
-
-    // 判断哪个按键被按下，映射到对应的段码
-    for (int j = 0; j < 5; j++)
+    while (Xil_In32(XPAR_AXI_UARTLITE_1_BASEADDR + XUL_STATUS_REG_OFFSET) & XUL_SR_RX_FIFO_VALID_DATA)
     {
-        if (data & (0x01 << j))
+        unsigned char data = Xil_In32(XPAR_AXI_UARTLITE_1_BASEADDR + XUL_RX_FIFO_OFFSET);
+        xil_printf("UART1_handle: 0x%x\n", data);
+
+        // 判断哪个按键被按下，映射到对应的段码
+        for (int j = 0; j < 5; j++)
         {
-            // 显示缓冲区左移一位，新字符从右侧进入
-            for (int digit_index = 0; digit_index < 7; digit_index++)
+            if (data & (0x01 << j))
             {
-                segcode[digit_index] = segcode[digit_index + 1];
+                // 显示缓冲区左移一位，新字符从右侧进入
+                for (int digit_index = 0; digit_index < 7; digit_index++)
+                {
+                    segcode[digit_index] = segcode[digit_index + 1];
+                }
+                segcode[7] = segtable[j];
+                break;
             }
-            segcode[7] = segtable[j];
-            break;
         }
     }
-
-    // 接收完成后关闭UART1中断（防止TX空导致的中断风暴）
-    Xil_Out32(XPAR_AXI_UARTLITE_1_BASEADDR + XUL_CONTROL_REG_OFFSET, 0);
+    // 清除UART1中断状态（保留中断使能位！）
+    Xil_Out32(XPAR_AXI_UARTLITE_1_BASEADDR + XUL_CONTROL_REG_OFFSET,
+              XUL_CR_ENABLE_INTR | XUL_CR_FIFO_TX_RESET | XUL_CR_FIFO_RX_RESET);
 }
 
 // UART2中断处理函数：
@@ -246,11 +246,12 @@ void uart1_handle(void)
 // 组装为16位后在LED上显示。
 void uart2_handle(void)
 {
-    // 仅在接收FIFO有有效数据时处理（忽略TX空的中断）
-    if (!(Xil_In32(XPAR_AXI_UARTLITE_2_BASEADDR + XUL_STATUS_REG_OFFSET) & XUL_SR_RX_FIFO_VALID_DATA))
-        return;
-
+    // 循环读取RX FIFO中所有可用字节，防止xil_printf期间第二个字节被FIFO复位清空
+    if(!Xil_In32(XPAR_AXI_UARTLITE_2_BASEADDR + XUL_STATUS_REG_OFFSET) & XUL_SR_RX_FIFO_VALID_DATA)
+    return;
+    
     unsigned char rx_byte = Xil_In32(XPAR_AXI_UARTLITE_2_BASEADDR + XUL_RX_FIFO_OFFSET);
+
 
     if (sw_byte_count == 0)
     {
@@ -263,11 +264,15 @@ void uart2_handle(void)
         // 接收低字节，组装完整16位开关值
         unsigned short sw = (sw_high_byte << 8) | rx_byte;
         Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, sw);
+        xil_printf("LED set to: %d\n", sw);
         sw_byte_count = 0;
-        // 接收完成后关闭UART2中断
-        Xil_Out32(XPAR_AXI_UARTLITE_2_BASEADDR + XUL_CONTROL_REG_OFFSET, 0);
-    }
+        // 清除UART2中断状态（必须保留 ENABLE_INTR 位，写 0 等于禁止后续中断）
+        //Xil_Out32(XPAR_AXI_UARTLITE_2_BASEADDR + XUL_CONTROL_REG_OFFSET,0); // 重置接收状态，准备下一次接收
 }
+    }
+    
+
+    
 
 // 定时器中断处理函数：
 // 8位数码管动态扫描，每次定时中断刷新一个位。

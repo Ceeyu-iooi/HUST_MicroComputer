@@ -1,9 +1,9 @@
-# 0 "D:\\Vivado\\Vitis\\Projects\\CPU_UART\\hw\\sdt\\system-top.dts"
+# 0 "D:\\Vivado\\Vitis\\Projects\\CPU_SPI\\hw\\sdt\\system-top.dts"
 # 0 "<built-in>"
 # 0 "<command-line>"
-# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_UART\\hw\\sdt\\system-top.dts"
+# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_SPI\\hw\\sdt\\system-top.dts"
 /dts-v1/;
-# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_UART\\hw\\sdt\\pl.dtsi" 1
+# 1 "D:\\Vivado\\Vitis\\Projects\\CPU_SPI\\hw\\sdt\\pl.dtsi" 1
 / {
  cpus_microblaze_0: cpus_microblaze@0 {
   #cpu-mask-cells = <1>;
@@ -525,7 +525,7 @@
   };
  };
 };
-# 3 "D:\\Vivado\\Vitis\\Projects\\CPU_UART\\hw\\sdt\\system-top.dts" 2
+# 3 "D:\\Vivado\\Vitis\\Projects\\CPU_SPI\\hw\\sdt\\system-top.dts" 2
 / {
  board = "nexys4_ddr";
  compatible = "xlnx,nexys4_ddr";

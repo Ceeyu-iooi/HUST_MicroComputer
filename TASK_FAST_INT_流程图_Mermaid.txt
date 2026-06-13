@@ -1,0 +1,50 @@
+flowchart TD
+    Start["程序启动"]
+    Start --> PrintHeader["UART打印:\nRunning GPIO Test Fast Interrupt"]
+    PrintHeader --> InitGPIO["① GPIO方向配置\n开关=输入 LED=输出\n位选=输出 段码=输出\n按键=输入"]
+    InitGPIO --> InitIntr["② GPIO中断使能\nGPIO_2: 清ISR-使能IER-使能GIE\nGPIO_0: 清ISR-使能IER-使能GIE"]
+    InitIntr --> InitTimer["③ TIMER_0初始化\n关闭-设初值998-载入\n自动重载+减计数+中断使能\n清标志+启动"]
+    InitTimer --> InitFast["④ 快速中断配置★核心差异★\nIMR寄存器: 标记三条中断线为快速模式\nIVAR[0]=switch_handle函数地址\nIVAR[1]=button_handle函数地址\nIVAR[2]=timer_handle函数地址"]
+    InitFast --> InitIntc["⑤ INTC使能\n清IAR 三条中断线\n使能IER 三条中断线\n使能MER Master+Hardware"]
+    InitIntc --> InitCPU["⑥ CPU中断使能\nmicroblaze_enable_interrupts"]
+    InitCPU --> MainIdle["while(1) 主循环\nCPU空转等待中断"]
+    MainIdle --> IntEvent["中断事件发生\nGPIO_0 / GPIO_2 / TIMER_0"]
+    IntEvent --> HD1["INTC硬件接收中断信号"]
+    HD1 --> HD2["INTC查询IMR寄存器\n确认为快速中断模式"]
+    HD2 --> HD3["INTC从IVAR槽位\n读取对应ISR函数地址"]
+    HD3 --> HD4["MicroBlaze硬件\n直接跳转到对应ISR入口"]
+    HD4 --> Dispatch{"根据中断源\n硬件自动分发"}
+
+    Dispatch -->|"GPIO_0中断"| Sw1["switch_handle入口\nfast_interrupt"]
+    Dispatch -->|"GPIO_2中断"| Btn1["button_handle入口\nfast_interrupt"]
+    Dispatch -->|"TIMER中断"| Tmr1["timer_handle入口\nfast_interrupt每1us"]
+
+    Sw1 --> Sw2["读取开关数据\nsw = GPIO_0_DATA"]
+    Sw2 --> Sw3["更新LED\nGPIO_0_DATA2 = sw"]
+    Sw3 --> Sw4{"sw 不为 0 ?"}
+    Sw4 -->|是| Sw5["UART打印开关值"]
+    Sw5 --> Sw6["清除中断标志\nGPIO_0_ISR"]
+    Sw4 -->|否| Sw6
+    Sw6 --> SwRet["快速中断返回\n少量寄存器恢复"]
+    SwRet --> MainIdle
+
+    Btn1 --> Btn2["读取按键值\nbutton = GPIO_2_DATA & 0x1F"]
+    Btn2 --> Btn3{"button 等于 0 ?\n松开事件"}
+    Btn3 -->|"是 松开"| Btn8["清除中断标志并返回"]
+    Btn3 -->|"否 按下"| Btn4["UART打印按键编码"]
+    Btn4 --> Btn5["解析按键位索引 mask"]
+    Btn5 --> Btn6["显示缓冲区左移"]
+    Btn6 --> Btn7["新段码插入最右位"]
+    Btn7 --> Btn8
+    Btn8 --> BtnRet["快速中断返回\n少量寄存器恢复"]
+    BtnRet --> MainIdle
+
+    Tmr1 --> Tmr2["消影\n位码=0xFF 段码=0xFF"]
+    Tmr2 --> Tmr3["输出当前位\n位码=poscode[pos]\n段码=segcode[pos]"]
+    Tmr3 --> Tmr4["pos加1"]
+    Tmr4 --> Tmr5{"pos 等于 8 ?"}
+    Tmr5 -->|是| Tmr6["pos = 0"]
+    Tmr5 -->|否| Tmr7["清除TIMER中断标志\nTCSR = INT_OCCURED"]
+    Tmr6 --> Tmr7
+    Tmr7 --> TmrRet["快速中断返回\n少量寄存器恢复"]
+    TmrRet --> MainIdle

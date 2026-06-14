@@ -14,8 +14,8 @@
 #define STEP_PACE     100000     // 用于长定时计数
 
 /* 中断掩码 */
-#define GPIO_0_IRQ_MASK  0x1
-#define GPIO_2_IRQ_MASK  0x2
+#define GPIO_0_IRQ_MASK  0x1// GPIO0 开关中断
+#define GPIO_2_IRQ_MASK  0x2// GPIO2中断
 #define TIMER_0_IRQ_MASK 0x4
 
 /* ========== 段码表 ========== */

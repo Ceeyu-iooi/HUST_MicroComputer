@@ -1,24 +1,25 @@
-#include "xil_io.h"
-#include "stdio.h"
-#include "xintc_l.h"
-#include "xtmrctr_l.h"
-#include "xtmrctr.h"
-#include "xgpio_l.h"
-#include "xgpio.h"
-#include "xil_printf.h"
-#include "xparameters.h"
-#include "mb_interface.h"
+#include "xil_io.h"// 包含Xilinx I/O头文件
+#include "stdio.h"// 包含标准输入输出头文件
+#include "xintc_l.h"   // 包含Xilinx中断控制器头文件
+#include "xtmrctr_l.h"// 包含Xilinx定时器头文件
+#include "xtmrctr.h"// 包含Xilinx定时器头文件
+#include "xgpio_l.h"// 包含Xilinx GPIO头文件
+#include "xgpio.h"// 包含Xilinx GPIO头文件
+#include "xil_printf.h"// 包含Xilinx printf头文件
+#include "xparameters.h"// 包含Xilinx参数头文件
+#include "mb_interface.h"// 包含MB接口头文件
 
 /* ========== 宏定义 ========== */
 
 /* --- 定时器重装载值 --- */
 #define RESET_VALUE0       1000 - 2           // T0：数码管动态扫描（~10μs/位）
 #define RESET_VALUE1       100000000 - 2      // T1：基础周期1s
-#define T1_TICK_halfS      50000000 - 2       // T1：0.5s
-#define T1_TICK_quarterS   25000000 - 2       // T1：0.25s
+#define T1_TICK_HALFS      50000000 - 2       // T1：0.5s
+#define T1_TICK_QUARTERS   25000000 - 2       // T1：0.25s
 
 /* --- 中断掩码（对应中断控制器的中断源编号） --- */
-#define GPIO_2_IRQ_MASK    0x2                // GPIO2（按键）中断掩码
+#define GPIO_0_IRQ_MASK    0x1                // GPIO0 开关中断
+#define GPIO_2_IRQ_MASK    0x2                // GPIO2 按键中断
 #define TIMER_0_IRQ_MASK   0x4                // Timer0（T0+T1共用同一根中断线）中断掩码
 
 /* --- 按键位掩码（GPIO2_CH1 低5位对应5个独立按键） --- */
@@ -100,6 +101,11 @@ void Initialization(void)
     Xil_Out8( XPAR_AXI_GPIO_1_BASEADDR + XGPIO_TRI2_OFFSET, 0x0);     // GPIO1_CH2: 数码管段码(8位) → 输出
     Xil_Out8( XPAR_AXI_GPIO_2_BASEADDR + XGPIO_TRI_OFFSET,  0x1f);    // GPIO2_CH1: 独立按键(5位) → 输入
 
+    /* ---- GPIO0 开关中断使能 ---- */
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_ISR_OFFSET, XGPIO_IR_CH1_MASK);  // 清除中断标志
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_IER_OFFSET, XGPIO_IR_CH1_MASK);  // 使能通道中断
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_GIE_OFFSET, XGPIO_GIE_GINTR_ENABLE_MASK);  // 使能GPIO全局中断
+
     /* ---- GPIO2（按键）中断使能 ---- */
     Xil_Out32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET, XGPIO_IR_CH1_MASK);  // 清除中断标志
     Xil_Out32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_IER_OFFSET, XGPIO_IR_CH1_MASK);  // 使能通道中断
@@ -131,17 +137,14 @@ void Initialization(void)
 
     /* ---- 中断控制器初始化 ---- */
     Xil_Out32(XPAR_AXI_INTC_0_BASEADDR + XIN_IAR_OFFSET,
-              GPIO_2_IRQ_MASK | TIMER_0_IRQ_MASK);
+              GPIO_0_IRQ_MASK | GPIO_2_IRQ_MASK | TIMER_0_IRQ_MASK);
     Xil_Out32(XPAR_AXI_INTC_0_BASEADDR + XIN_IER_OFFSET,
-              GPIO_2_IRQ_MASK | TIMER_0_IRQ_MASK);
+              GPIO_0_IRQ_MASK | GPIO_2_IRQ_MASK | TIMER_0_IRQ_MASK);
     Xil_Out32(XPAR_AXI_INTC_0_BASEADDR + XIN_MER_OFFSET,
               XIN_INT_MASTER_ENABLE_MASK | XIN_INT_HARDWARE_ENABLE_MASK);
 
     microblaze_enable_interrupts();
 
-    /* ---- 初始状态：全部熄灭 ---- */
-    Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, 0x0000);
-    /* segcode默认全0xff（全灭），不需额外设置 */
 
     xil_printf("Initialization Complete.\r\n");
 }
@@ -151,6 +154,9 @@ void My_ISR()
 {
     int status = Xil_In32(XPAR_AXI_INTC_0_BASEADDR + XIN_ISR_OFFSET);
 
+    if ((status & GPIO_0_IRQ_MASK) == GPIO_0_IRQ_MASK)
+        switch_handle();
+    
     if ((status & GPIO_2_IRQ_MASK) == GPIO_2_IRQ_MASK)
         button_handle();
 

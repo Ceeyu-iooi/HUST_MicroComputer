@@ -17,5 +17,10 @@
 .pdi
 .vitisWorkspace.json
 
+_ide/
 _ide/logs
 _ide/.wsdata
+
+# Ignore IDE configuration directories
+.vscode/
+.rigel_lopper/

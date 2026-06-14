@@ -11,30 +11,24 @@
 
 /* ========== 宏定义 ========== */
 #define RESET_VALUE0  1000 - 2           // T0定时器重装载值（100MHz时钟约10μs），用于数码管动态扫描
-#define T1_BASE_TICK  100000000 - 2       // T1定时器基础周期（100MHz时钟约0.25s），作为软件分频的基频
-#define T1_TICK_halfS    50000000-2                   // T1基础周期的计数值达到4时即1s（4×0.25s=1s）
-#define T1_TICK_quarterS 25000000-2                   // T1基础周期的计数值达到2时即0.5s（2×0.25s=0.5s）
-int count = 0;
-int count1=0;
-int count2=0;
+#define RESET_VALUE1  100000000 - 2      // T1定时器重装载值（100MHz时钟约1s），用于滚动节奏控制
+
 /* 中断掩码（对应中断控制器的中断源编号） */
 #define GPIO_2_IRQ_MASK  0x2             // GPIO2（按键）中断掩码
 #define TIMER_0_IRQ_MASK 0x4             // Timer0（T0+T1共用同一个IP核的同一根中断线）中断掩码
 
 /* 按键位掩码（GPIO2_CH1 低5位对应5个独立按键） */
 #define BTNC_MASK  0x01                  // 中间按键 C（bit0）
-#define BTNR_MASK  0x08                  // 右键 R（bit1）
+#define BTNU_MASK  0x02                  // 上键 U（bit1）
 #define BTNL_MASK  0x04                  // 左键 L（bit2）
-#define BTND_MASK  0x10                  // 下键 D（bit3）
-#define BTNU_MASK  0x02                  // 上键 U（bit4）
+#define BTNR_MASK  0x08                  // 右键 R（bit3）
+#define BTND_MASK  0x10                  // 下键 D（bit4）
 
 /* 显示模式 */
-#define MODE_IDLE  0                     // 初始空闲模式
-#define MODE_C     1                     // 按键C：数码管熄灭+流水灯（速度1s/0.5s/0.25s循环）
-#define MODE_L     2                     // 按键L：LED反映开关+数码管循环左移
-#define MODE_D     3                     // 按键D：左4位显示开关二进制+LED奇数位亮
-#define MODE_R     4                     // 按键R：右4位显示反码+LED偶数位亮
-#define MODE_U     5                     // 按键U：滚动显示十进制+LED反映开关
+#define MODE_IDLE   0                    // 初始空闲模式：数码管全灭
+#define MODE_SHOW   1                    // 按键C：低4位开关值以16进制显示到segcode[7]（最右）
+#define MODE_LEFT   2                    // 按键R（第1次）：自动左移，每秒1位，到最左后回到最右循环
+#define MODE_RIGHT  3                    // 按键R（第2次）：自动右移，每秒1位，到最右后回到最左循环
 
 /* ========== 段码表（0~9, A~F） ========== */
 /* 共阳极数码管段码：dp g f e d c b a，0=亮、1=灭 */
@@ -57,23 +51,15 @@ char segtable_hex[16] = {
     0x8e  // F
 };
 
-/* 负号段码（"-"）：
- * 共阳极：要使g段（中间横线）亮起，需要g=0
- * dp g f e d c b a → 1 0 1 1 1 1 1 1 = 0xBF */
-#define SEG_MINUS  0xBF                  // 负号 "-"
-
 /* segcode[0~7]：数码管显示缓冲区，对应最左边~最右边8个数码管的段码。0xff=全灭 */
 char segcode[8]   = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 /* poscode[0~7]：数码管位选码，低电平选中对应位。poscode[0]=第1位(最左) ~ poscode[7]=第8位(最右) */
 short poscode[8]  = {0x7F, 0xBF, 0xDF, 0xEF, 0xf7, 0xfb, 0xfd, 0xfe};
 
-
-int mode = MODE_IDLE;
 int pos = 0;                             // 数码管动态扫描当前位置（0~7），T0定时器中断中更新
-char ledbits = 0x0000;                         // LED状态（0~15，低4位）
-/* ========== 全局状态变量 ========== */
-int display_mode = MODE_IDLE;            // 当前显示模式            
-char sw_current = 0;                    // 当前开关值（0~15，低4位）
+int mode = MODE_IDLE;                    // 当前显示模式
+char sw_val = 0;                         // 保存最新读取的开关值（低4位）
+
 /* ========== 函数声明 ========== */
 void Initialization(void);
 void My_ISR() __attribute__ ((interrupt_handler));
@@ -82,11 +68,10 @@ void timer0_handle(void);
 void timer1_handle(void);
 void button_handle(void);
 
-
 /* ========== main ========== */
 int main()
 {
-    xil_printf("\r\nTest9: 5按键多功能系统(C流水灯/U十进制/L左移/R反码/D二进制)\r\n");
+    xil_printf("\r\nTest10: 按键C显示开关值到数码管, 按键R控制左右滚动\r\n");
     Initialization();
     while(1);
     return 0;
@@ -119,10 +104,10 @@ void Initialization(void)
               XTC_CSR_DOWN_COUNT_MASK | XTC_CSR_INT_OCCURED_MASK |
               XTC_CSR_ENABLE_TMR_MASK);
 
-    /* ---- T1 定时器初始化（0.25s基础周期，软件分频实现不同速度） ---- */
+    /* ---- T1 定时器初始化（1秒中断一次，控制滚动节奏） ---- */
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET,
               Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET) & ~XTC_CSR_ENABLE_TMR_MASK);
-    Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TLR_OFFSET, T1_BASE_TICK);
+    Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TLR_OFFSET, RESET_VALUE1);
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET,
               Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET) | XTC_CSR_LOAD_MASK);
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET,
@@ -141,11 +126,12 @@ void Initialization(void)
 
     microblaze_enable_interrupts();
 
-    /* ---- 初始状态：熄灭所有数码管和LED ---- */
-    Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, 0x0000);  // LED全灭
-    /* segcode默认全0xff（全灭），不需额外设置 */
+    /* ---- 初始状态：全部熄灭 ---- */
+    for(int i = 0; i < 8; i++)
+        segcode[i] = 0xff;
+    Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, 0x0000);
 
-    xil_printf("Ready. Press C/U/L/R/D to switch mode.\r\n");
+    xil_printf("Ready. Press C to show switch value, R to toggle scroll direction.\r\n");
 }
 
 /* ========== 主中断服务函数 ========== */
@@ -194,180 +180,97 @@ void timer0_handle(void)
               Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET) | XTC_CSR_INT_OCCURED_MASK);
 }
 
-/* ========== T1 定时器中断处理函数（0.25s基础周期） ========== */
-/* 功能：根据当前模式执行周期性操作
- * MODE_A：流水灯按速度流动
- * MODE_E：十进制数按速度滚动
- * 其他模式：不做周期性操作 */
+/* ========== T1 定时器中断处理函数（滚动控制，每秒触发一次） ========== */
+/* 功能：根据当前模式执行滚动操作
+ * MODE_LEFT  → segcode[0~7]整体循环左移1位（最左→最右）
+ * MODE_RIGHT → segcode[0~7]整体循环右移1位（最右→最左）
+ * 其他模式 → 不做操作 */
 void timer1_handle(void)
 {
-    if(mode==MODE_C)
-    {  
-        
-    ledbits++;
-    if (ledbits ==16)
+    if (mode == MODE_LEFT)
     {
-        ledbits = 0;
-    }
-    Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, 1<<ledbits);
-    }
-    else if(mode==MODE_U)
-    {
-                /* 循环左移 */
-        char temp = segcode[0];              // 保存最左端(第1位)的值
+        /* 循环左移：segcode[0]→segcode[7]→segcode[6]→...→segcode[1]→segcode[0] */
+        char temp = segcode[0];              // 保存最左端
         for (int i = 0; i < 7; i++)
         {
-            segcode[i] = segcode[i + 1];     // 左移：后一位覆盖前一位
+            segcode[i] = segcode[i + 1];     // 后一位覆盖前一位
         }
-        segcode[7] = temp;  
+        segcode[7] = temp;                   // 原最左端到最右端
     }
-    else; 
-    
-  
+    else if (mode == MODE_RIGHT)
+    {
+        /* 循环右移：segcode[7]→segcode[0]→segcode[1]→...→segcode[6]→segcode[7] */
+        char temp = segcode[7];              // 保存最右端
+        for (int i = 0; i < 7; i++)
+        {
+            segcode[7 - i] = segcode[6 - i]; // 前一位覆盖后一位（从右向左遍历）
+        }
+        segcode[0] = temp;                   // 原最右端到最左端
+    }
+    /* MODE_IDLE/MODE_SHOW：不执行滚动 */
+
     /* 清除 T1 定时器中断标志 */
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET,
               Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET) | XTC_CSR_INT_OCCURED_MASK);
 }
 
-/* ========== segcode循环左移 ========== */
-/* 功能：将segcode[0~7]整体向左循环移位一位
- * 最左端（segcode[0]）移出后进入最右端（segcode[7]） */
-
-
 /* ========== GPIO2 按键处理函数 ========== */
+/* 功能：按C→U→L→R→D顺序判断按键，执行对应操作
+ * C(bit0)：读取开关低4位，以16进制显示到最右数码管，其他位熄灭
+ * R(bit3)：第1次→左移模式，第2次→右移模式，第3次→左移模式，依此类推
+ * U/L/D：预留，不做操作 */
 void button_handle(void)
 {
     char button = Xil_In8(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_DATA_OFFSET) & 0x1f;
 
-    /* 按键松开时直接清除中断标志后返回 */
-    if (button == 0)
+    /* 按键松开：仅清除中断标志后返回 */
+    if ((button & 0x1f) == 0)
     {
         Xil_Out32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET,
                   Xil_In32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET));
         return;
     }
 
-    /* ========== BTNC（bit0）：模式A - 流水灯 ========== */
+    /* ========== BTNC（bit0）：读取开关低4位，16进制显示到最右数码管 ========== */
     if (button & BTNC_MASK)
     {
-        mode=MODE_C;
-        for (int i = 0; i < 8; i++)
-            segcode[i] = 0xff;  // 数码管全灭
-        if(count==0)
-        {
-            Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TLR_OFFSET, T1_TICK_halfS);
-            count++;
-        }
-        else if(count==1)
-        {
-            Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TLR_OFFSET, T1_TICK_quarterS);
-            count=0;
-        }
+        mode = MODE_SHOW;                              // 切换为显示模式
+        sw_val = Xil_In8(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA_OFFSET) & 0x0f;  // 读取低4位
+        for (int i = 0; i < 7; i++)
+            segcode[i] = 0xff;                         // 左7位熄灭
+        segcode[7] = segtable_hex[sw_val];             // 最右位显示开关值的16进制
     }
 
-    /* ========== BTNU（bit1）：模式E - 滚动十进制 ========== */
+    /* ========== BTNU（bit1）：预留 ========== */
     else if (button & BTNU_MASK)
     {
-        for (int i = 0; i < 6; i++)
-            segcode[i] = 0xff;  // 
-        mode=MODE_U;
-        
-        char low4 = Xil_In8(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA_OFFSET) & 0xf;
-        char sign= low4 & 0x8;   // 提取符号位（bit3）
-        char number = low4 & 0x7; // 提取数值部分（bit2~bit0），范围 0~7
-        
-            if(sign)  // 负数（bit3=1）
-        {
-            segcode[6] = 0xbf;               // 共阳极段码 0xbf：在 segcode[6] 显示负号 "-"（仅g段不亮）
-            segcode[7] = segtable_hex[number];  // segcode[7] 显示数值（1~7，对应 -1~-7）
-        }
-        else      // 正数（bit3=0）
-        {
-            segcode[6] = 0xff;               // 熄灭 segcode[6]（全灭，不显示负号）
-            segcode[7] = segtable_hex[number];  // segcode[7] 显示数值（0~7，对应 0~+7）
-        }
-        // 每按一次BTNU，切换速度
-        if(count1==0){
-         Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TLR_OFFSET, T1_BASE_TICK);
-        count1++;
-        }
-        else if(count1==1)
-        {
-             Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TLR_OFFSET, T1_TICK_halfS);
-            count1=0;
-        }
-
-        Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, low4);
+        /* 未分配功能 */
     }
 
-    /* ========== BTNL（bit2）：模式B - LED=开关+左移 ========== */
+    /* ========== BTNL（bit2）：预留 ========== */
     else if (button & BTNL_MASK)
     {
-        mode=MODE_L;
-            unsigned short sw = Xil_In16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA_OFFSET);
-            if(count2==0)
-            {
-                sw_current=sw;
-                Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, sw_current);// 显示开关值
-                count2++;
-            }
-            else 
-            {
-                //sw_current=((sw_current<<1)&0xffff)|((sw_current&0x8000)>>15);// 左移一位
-                sw_current=(sw_current&0x7fff)|((sw_current>>15)&0x0001);// 左移一位，符号位补0
-                Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, sw_current);// 显示开关值
-                count2++;
-                if(count2==16)
-                {
-                    count2=0;
-                }
-            }
+        /* 未分配功能 */
     }
 
-    /* ========== BTNR（bit3）：模式D - 反码+偶数LED ========== */
+    /* ========== BTNR（bit3）：切换左移/右移模式 ========== */
     else if (button & BTNR_MASK)
     {
-        mode=MODE_R;
-        char low4 = Xil_In8(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA_OFFSET) & 0xf;
-        for(int i=0;i<4;i++)
-        {
-            segcode[i] = 0xff;// 左边4位熄灭
-        }
-        for (int i = 0; i < 4; i++)
-        {
-            if ((~low4) & (0x8 >> i))// 检查第i位是否为0
-                segcode[4+i] = segtable_hex[1];  // 显示"1",0位对应segcode[7],7位对应segcode[0]
-            else
-                segcode[4+i] = segtable_hex[0];  // 显示"0"
-        }
-
-        /* LED偶数位亮（第2,4,6,...个），奇数位不亮 → 0xAAAA */
-        Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, 0xAAAA);
+        if (mode == MODE_LEFT)
+            mode = MODE_RIGHT;                         // 当前左移 → 切换为右移
+        else if (mode == MODE_RIGHT)
+            mode = MODE_LEFT;                          // 当前右移 → 切换为左移
+        else
+            mode = MODE_LEFT;                          // 非滚动模式 → 进入左移
     }
-    
-    /* ========== BTND（bit4）：模式C - 二进制+奇数LED ========== */
+
+    /* ========== BTND（bit4）：预留 ========== */
     else if (button & BTND_MASK)
     {
-        mode=MODE_D;
-        char low4 = Xil_In8(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA_OFFSET) & 0xf;
-        for(int i=4;i<8;i++)
-        {
-            segcode[i] = 0xff;// 右4位熄灭
-        }
-
-        for (int i = 0; i < 4; i++)
-        {
-            if (low4 & (0x8 >> i))// 检查第i位是否为1
-                segcode[i] = segtable_hex[1];  // 显示"1",0位对应segcode[7],7位对应segcode[0]
-            else
-                segcode[i] = segtable_hex[0];  // 显示"0"
-        }
-        Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, 0x5555);
+        /* 未分配功能 */
     }
 
     /* 清除 GPIO2 中断标志 */
     Xil_Out32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET,
               Xil_In32(XPAR_AXI_GPIO_2_BASEADDR + XGPIO_ISR_OFFSET));
 }
-
-

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微机原理实验备考文档</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #e8f0fe 0%, #d2e3fc 50%, #ffffff 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(37,99,235,0.10);
+            padding: 50px 60px;
+            position: relative;
+        }
+        @media (max-width: 768px) { .container { padding: 25px 18px; } }
+
+        h1 {
+            font-size: 28px;
+            color: #1e3a5f;
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 15px;
+        }
+        h2 {
+            font-size: 22px;
+            color: #1e3a5f;
+            margin-top: 40px;
+            margin-bottom: 18px;
+            padding-left: 12px;
+            border-left: 5px solid #2563eb;
+        }
+        h3 {
+            font-size: 18px;
+            color: #2563eb;
+            margin-top: 28px;
+            margin-bottom: 12px;
+        }
+        p { line-height: 1.8; color: #333; margin-bottom: 14px; }
+
+        a { color: #2563eb; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        hr { border: none; height: 1px; background: #dbeafe; margin: 30px 0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+            font-size: 14px;
+        }
+        th {
+            background: #1e3a5f;
+            color: #fff;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border: 1px solid #dbeafe;
+            vertical-align: top;
+        }
+        td strong { color: #000; } /* 表格中加粗用黑色 */
+        tr:nth-child(even) { background: #f0f7ff; }
+        tr:hover { background: #dbeafe; }
+
+        pre {
+            background: #f5f5f5;  /* 灰白色背景 */
+            color: #333;
+            border-radius: 10px;
+            padding: 18px 20px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 16px 0;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.08);
+        }
+        code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 13px;
+            background: #e8f0fe;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #1e3a5f;
+        }
+        pre code { background: transparent; padding: 0; color: inherit; }
+
+        p code, li code {
+            background: #e8f0fe;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1e3a5f;
+        }
+
+        ul, ol { margin: 10px 0 14px 24px; line-height: 1.8; }
+        li { margin-bottom: 4px; }
+
+        strong { color: inherit; }
+
+        blockquote {
+            border-left: 4px solid #2563eb;
+            background: #e8f0fe;
+            padding: 12px 18px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+            color: #1e3a5f;
+        }
+
+        .toc {
+            background: #f0f7ff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            border: 1px solid #dbeafe;
+        }
+        .toc ul { list-style: none; margin: 0; padding: 0; }
+        .toc > ul > li { margin: 4px 0; }
+        .toc ul ul { padding-left: 20px; }
+        .toc a { color: #1e3a5f; transition: color 0.2s; }
+        .toc a:hover { color: #2563eb; text-decoration: none; }
+
+        pre::-webkit-scrollbar { height: 6px; }
+        pre::-webkit-scrollbar-track { background: #ddd; border-radius: 3px; }
+        pre::-webkit-scrollbar-thumb { background: #bbb; border-radius: 3px; }
+
+        @media print {
+            body { background: #fff; padding: 0; }
+            .container { box-shadow: none; border-radius: 0; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>微机原理实验备考文档</h1>
+<hr />
+<h2>目录</h2>
+<ul>
+<li><a href="#微机原理实验备考文档">微机原理实验备考文档</a></li>
+<li><a href="#目录">目录</a></li>
+<li><a href="#一12个题目概述">一、12个题目概述</a></li>
+<li><a href="#二头文件与地址宏定义">二、头文件与地址宏定义</a></li>
+<li><a href="#三数码管相关表">三、数码管相关表</a></li>
+<li><a href="#四按键掩码">四、按键掩码</a></li>
+<li><a href="#五中断掩码">五、中断掩码</a></li>
+<li><a href="#六定时器掩码与配置">六、定时器掩码与配置</a></li>
+<li><a href="#七变量类型说明">七、变量类型说明</a></li>
+<li><a href="#八中断实现框架">八、中断实现框架</a></li>
+<li><a href="#九代码逻辑总结">九、代码逻辑总结</a><ul>
+<li><a href="#91-二进制显示">9.1 二进制显示</a></li>
+<li><a href="#92-十六进制显示segtable_hex对应">9.2 十六进制显示（segtable_hex对应）</a></li>
+<li><a href="#93-十进制显示">9.3 十进制显示</a></li>
+<li><a href="#94-数码管循环左移">9.4 数码管循环左移</a></li>
+<li><a href="#95-数码管循环右移">9.5 数码管循环右移</a></li>
+<li><a href="#96-变速实现定时器重装载值切换">9.6 变速实现（定时器重装载值切换）</a></li>
+<li><a href="#97-取反带符号位处理">9.7 取反（带符号位处理）</a></li>
+<li><a href="#98-补码计算">9.8 补码计算</a></li>
+<li><a href="#99-流水灯变速">9.9 流水灯变速</a></li>
+<li><a href="#910-led整体左移右移">9.10 LED整体左移/右移</a></li>
+</ul>
+</li>
+<li><a href="#十常见gpio配置速查">十、常见GPIO配置速查</a></li>
+</ul>
+<hr />
+<h2>一、12个题目概述</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">题号</th>
+<th>考查内容</th>
+<th>涉及外设</th>
+<th>核心功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td>按键编码字符显示（<strong>全部显示</strong>）</td>
+<td>开关、<strong>LED</strong>、<strong>数码管</strong>、按键</td>
+<td><strong>LED</strong> = 开关值（直通映射）<br>8个<strong>数码管全部显示</strong>同一按键字符（<strong>C</strong>/U/L/D/R）</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td>按键编码字符显示（<strong>依次显示</strong>）</td>
+<td>开关、<strong>LED</strong>、<strong>数码管</strong>、按键</td>
+<td><strong>LED</strong> = 开关值（直通映射）<br><strong>数码管依次逐个</strong>显示按键字符（<strong>循环移位</strong>）</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td>进制转换（<strong>二进制</strong>/<strong>十六进制</strong>/<strong>十进制</strong>）</td>
+<td>开关、<strong>数码管</strong>、按键</td>
+<td><strong>BC</strong> → <strong>二进制</strong>显示开关值的低4位<br><strong>BU</strong> → <strong>十六进制</strong>显示开关值的低8位<br><strong>BL</strong> → <strong>十进制</strong>显示开关值的低8位（逐位分解查段码表）</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td>程序控制方式（<strong>无中断轮询</strong>）</td>
+<td>开关、<strong>LED</strong>、按键</td>
+<td>按键读取两组<strong>开关</strong>值<br>做<strong>加法/乘法</strong> → <strong>LED</strong> 显示结果（C=加法，R=乘法）</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td><strong>十六进制</strong>显示+<strong>定时器递增</strong></td>
+<td>开关、<strong>数码管</strong>、按键、<strong>定时器</strong></td>
+<td><strong>C</strong> → <strong>十六进制</strong>显示开关值的低8位（右2位数码管）<br><strong>L</strong> → <strong>每秒+1</strong>递增（0→255→0<strong>循环</strong>），由<strong>T1定时器</strong>驱动</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td><strong>数码管左右移位</strong></td>
+<td>开关、<strong>数码管</strong>、按键</td>
+<td><strong>C</strong> → 显示<strong>开关</strong>值的最右4位到<strong>最右</strong>侧数码管<br><strong>L</strong> → <strong>循环左移</strong>（左端移回右端）<br><strong>R</strong> → <strong>循环右移</strong>（右端移回左端）</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td>带符号二进制→<strong>十进制</strong>（<strong>原码/反码/补码</strong>）</td>
+<td>开关、<strong>数码管</strong>、按键</td>
+<td>左4位<strong>数码管</strong>显示<strong>二进制</strong><br><strong>C</strong> → 带符号<strong>十进制</strong>（正数直接=值，负数=16-值）<br><strong>L</strong> → 切换显示<strong>取反</strong>/<strong>补码</strong>（符号位不变，低3位处理）</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td><strong>数码管滚动</strong>显示（无按键控制）</td>
+<td><strong>数码管</strong>、<strong>定时器</strong></td>
+<td>每秒<strong>滚动</strong>显示 "<strong>3456</strong>"（<strong>循环左移</strong>），由<strong>T1定时器</strong>驱动</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td><strong>综合系统</strong>（流水灯变速/移位/反码/符号十进制滚动）</td>
+<td>开关、<strong>LED</strong>、<strong>数码管</strong>、按键、<strong>定时器</strong></td>
+<td><strong>C</strong> → <strong>流水灯变速</strong>（1s→0.5s→0.25s<strong>循环切换</strong>）<br><strong>U</strong> → <strong>LED</strong> <strong>整体左移</strong>/<strong>右移</strong>切换<br><strong>L</strong> → <strong>LED</strong> <strong>循环左移</strong>/<strong>右移</strong>（单灯循环）<br><strong>R</strong> → 开关值<strong>二进制</strong>/<strong>按位取反</strong>切换显示<br><strong>D</strong> → <strong>符号十进制</strong>滚动（带负号处理，<strong>数码管滚动</strong>）</td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td><strong>数码管自动左右滚动</strong></td>
+<td>开关、<strong>数码管</strong>、按键、<strong>定时器</strong></td>
+<td><strong>C</strong> → <strong>十六进制</strong>显示<strong>开关</strong>值的低8位（右2位数码管）<br><strong>R</strong> → <strong>切换左移</strong>/<strong>右移</strong>方向（自动<strong>滚动</strong>，1Hz）</td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td><strong>LED映射</strong>+<strong>循环右移</strong></td>
+<td>开关、<strong>LED</strong>、按键</td>
+<td><strong>C</strong> → 低8位<strong>开关</strong>值 <strong>映射</strong>到 <strong>LED高8位</strong>（低8位LED保持）<br><strong>R</strong> → <strong>LED</strong> <strong>循环右移</strong>（16位整体旋转）</td>
+</tr>
+<tr>
+<td style="text-align: center;">12</td>
+<td><strong>数码管滚动</strong>显示+按键控制方向</td>
+<td><strong>数码管</strong>、按键、<strong>定时器</strong></td>
+<td>显示 "<strong>3456</strong>"<br><strong>C</strong> → 开始<strong>滚动</strong>（由<strong>T1定时器</strong>驱动）<br><strong>L</strong> → <strong>左移</strong>（<strong>循环</strong>）<br><strong>R</strong> → <strong>右移</strong>（<strong>循环</strong>）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>二、头文件与地址宏定义</h2>
+<p><strong>2.1 必需头文件</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">"xil_io.h"</span><span class="c1">           // Xil_In8/16/32, Xil_Out8/16/32</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"stdio.h"</span><span class="c1">            // 标准输入输出</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"xintc_l.h"</span><span class="c1">          // 中断控制器（低层）</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"xtmrctr_l.h"</span><span class="c1">        // 定时器（低层）</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"xtmrctr.h"</span><span class="c1">          // 定时器（高层，含常量定义）</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"xgpio_l.h"</span><span class="c1">          // GPIO（低层）</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"xgpio.h"</span><span class="c1">            // GPIO（高层，含常量定义）</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"xil_printf.h"</span><span class="c1">       // xil_printf</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"xparameters.h"</span><span class="c1">      // 参数定义（XPAR_... 地址常量）</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"mb_interface.h"</span><span class="c1">     // MicroBlaze接口（中断使能等）</span>
+</code></pre></div>
+
+<p><strong>2.2 外设基地址（由 xparameters.h 提供）</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// GPIO0: 独立开关(16位) CH1 + LED灯(16位) CH2</span>
+<span class="cp">#define GPIO0_BASE  XPAR_AXI_GPIO_0_BASEADDR</span>
+
+<span class="c1">// GPIO1: 数码管位选(8位) CH1 + 数码管段码(8位) CH2</span>
+<span class="cp">#define GPIO1_BASE  XPAR_AXI_GPIO_1_BASEADDR</span>
+
+<span class="c1">// GPIO2: 独立按键(5位) CH1</span>
+<span class="cp">#define GPIO2_BASE  XPAR_AXI_GPIO_2_BASEADDR</span>
+
+<span class="c1">// Timer0: 双通道定时器（T0=通道0, T1=通道1）</span>
+<span class="cp">#define TIMER0_BASE XPAR_AXI_TIMER_0_BASEADDR</span>
+
+<span class="c1">// Interrupt Controller</span>
+<span class="cp">#define INTC_BASE   XPAR_AXI_INTC_0_BASEADDR</span>
+</code></pre></div>
+
+<p><strong>2.3 GPIO寄存器偏移</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#define XGPIO_TRI_OFFSET   0x00   </span><span class="c1">// 方向寄存器（1=输入, 0=输出）</span>
+<span class="cp">#define XGPIO_DATA_OFFSET  0x08   </span><span class="c1">// 数据寄存器（CH1）</span>
+<span class="cp">#define XGPIO_TRI2_OFFSET  0x04   </span><span class="c1">// 方向寄存器（CH2）</span>
+<span class="cp">#define XGPIO_DATA2_OFFSET 0x0C   </span><span class="c1">// 数据寄存器（CH2）</span>
+<span class="cp">#define XGPIO_ISR_OFFSET   0x10   </span><span class="c1">// 中断状态寄存器</span>
+<span class="cp">#define XGPIO_IER_OFFSET   0x14   </span><span class="c1">// 中断使能寄存器</span>
+<span class="cp">#define XGPIO_GIE_OFFSET   0x18   </span><span class="c1">// 全局中断使能</span>
+
+<span class="cp">#define XGPIO_IR_CH1_MASK         0x01  </span><span class="c1">// 通道1中断屏蔽</span>
+<span class="cp">#define XGPIO_GIE_GINTR_ENABLE_MASK 0x80000000  </span><span class="c1">// 全局中断使能位</span>
+</code></pre></div>
+
+<p><strong>2.4 定时器寄存器偏移</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#define XTC_TCSR_OFFSET  0x00   </span><span class="c1">// 控制和状态寄存器</span>
+<span class="cp">#define XTC_TLR_OFFSET   0x04   </span><span class="c1">// 装载寄存器</span>
+<span class="cp">#define XTC_TCR_OFFSET   0x08   </span><span class="c1">// 计数器寄存器</span>
+
+<span class="c1">// T1(Timer1) = 通道1，地址偏移0x10</span>
+<span class="cp">#define XTC_TIMER_COUNTER_OFFSET  0x10</span>
+
+<span class="c1">// TCSR 控制/状态位</span>
+<span class="cp">#define XTC_CSR_ENABLE_TMR_MASK    0x00000001  </span><span class="c1">// 使能定时器</span>
+<span class="cp">#define XTC_CSR_ENABLE_INT_MASK    0x00000010  </span><span class="c1">// 使能中断</span>
+<span class="cp">#define XTC_CSR_AUTO_RELOAD_MASK   0x00000002  </span><span class="c1">// 自动重载</span>
+<span class="cp">#define XTC_CSR_DOWN_COUNT_MASK    0x00000008  </span><span class="c1">// 减计数</span>
+<span class="cp">#define XTC_CSR_INT_OCCURED_MASK   0x00000020  </span><span class="c1">// 中断发生标志</span>
+<span class="cp">#define XTC_CSR_LOAD_MASK          0x00000040  </span><span class="c1">// 加载初值</span>
+</code></pre></div>
+
+<p><strong>2.5 中断控制器寄存器偏移</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#define XIN_IER_OFFSET  0x08   </span><span class="c1">// 中断使能寄存器</span>
+<span class="cp">#define XIN_IAR_OFFSET  0x0C   </span><span class="c1">// 中断应答寄存器</span>
+<span class="cp">#define XIN_MER_OFFSET  0x1C   </span><span class="c1">// 主使能寄存器</span>
+<span class="cp">#define XIN_ISR_OFFSET  0x00   </span><span class="c1">// 中断状态寄存器</span>
+
+<span class="cp">#define XIN_INT_MASTER_ENABLE_MASK   0x00000001  </span><span class="c1">// 主使能</span>
+<span class="cp">#define XIN_INT_HARDWARE_ENABLE_MASK 0x00000002  </span><span class="c1">// 硬件使能</span>
+</code></pre></div>
+
+<hr />
+<h2>三、数码管相关表</h2>
+<p><strong>3.1 十六进制段码表（共阳极）</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="cm">/* 共阳极数码管段码：dp g f e d c b a，0=亮、1=灭 */</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">segtable_hex</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="mh">0xc0</span><span class="p">,</span><span class="w"> </span><span class="c1">// 0</span>
+<span class="w">    </span><span class="mh">0xf9</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1</span>
+<span class="w">    </span><span class="mh">0xa4</span><span class="p">,</span><span class="w"> </span><span class="c1">// 2</span>
+<span class="w">    </span><span class="mh">0xb0</span><span class="p">,</span><span class="w"> </span><span class="c1">// 3</span>
+<span class="w">    </span><span class="mh">0x99</span><span class="p">,</span><span class="w"> </span><span class="c1">// 4</span>
+<span class="w">    </span><span class="mh">0x92</span><span class="p">,</span><span class="w"> </span><span class="c1">// 5</span>
+<span class="w">    </span><span class="mh">0x82</span><span class="p">,</span><span class="w"> </span><span class="c1">// 6</span>
+<span class="w">    </span><span class="mh">0xf8</span><span class="p">,</span><span class="w"> </span><span class="c1">// 7</span>
+<span class="w">    </span><span class="mh">0x80</span><span class="p">,</span><span class="w"> </span><span class="c1">// 8</span>
+<span class="w">    </span><span class="mh">0x90</span><span class="p">,</span><span class="w"> </span><span class="c1">// 9</span>
+<span class="w">    </span><span class="mh">0x88</span><span class="p">,</span><span class="w"> </span><span class="c1">// A</span>
+<span class="w">    </span><span class="mh">0x83</span><span class="p">,</span><span class="w"> </span><span class="c1">// B</span>
+<span class="w">    </span><span class="mh">0xc6</span><span class="p">,</span><span class="w"> </span><span class="c1">// C</span>
+<span class="w">    </span><span class="mh">0xa1</span><span class="p">,</span><span class="w"> </span><span class="c1">// D</span>
+<span class="w">    </span><span class="mh">0x86</span><span class="p">,</span><span class="w"> </span><span class="c1">// E</span>
+<span class="w">    </span><span class="mh">0x8e</span><span class="w">  </span><span class="c1">// F</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p><strong>3.2 特殊段码定义</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#define SEG_C   0xC6  </span><span class="c1">// 大写C</span>
+<span class="cp">#define SEG_U   0xC1  </span><span class="c1">// 大写U</span>
+<span class="cp">#define SEG_L   0xC7  </span><span class="c1">// 大写L</span>
+<span class="cp">#define SEG_D   0x86  </span><span class="c1">// 小写d</span>
+<span class="cp">#define SEG_R   0x86  </span><span class="c1">// 小写r</span>
+<span class="cp">#define SEG_MINUS  0xBF  </span><span class="c1">// 负号 "-"（仅g段亮）</span>
+</code></pre></div>
+
+<p><strong>说明：</strong> 段码0xBF的位排列为 <code>1 0 1 1 1 1 1 1</code>，dp=1(灭) g=0(亮) f=1 e=1 d=1 c=1 b=1 a=1 → 仅中间横线(g段)亮起，显示负号。</p>
+<p><strong>3.3 段码缓冲区 segcode[8]</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="cm">/* segcode[0~7]：数码管显示缓冲区，对应最左边~最右边8个数码管的段码。0xff=全灭 */</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">segcode</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xff</span><span class="p">,</span><span class="w"> </span><span class="mh">0xff</span><span class="p">,</span><span class="w"> </span><span class="mh">0xff</span><span class="p">,</span><span class="w"> </span><span class="mh">0xff</span><span class="p">,</span><span class="w"> </span><span class="mh">0xff</span><span class="p">,</span><span class="w"> </span><span class="mh">0xff</span><span class="p">,</span><span class="w"> </span><span class="mh">0xff</span><span class="p">,</span><span class="w"> </span><span class="mh">0xff</span><span class="p">};</span>
+</code></pre></div>
+
+<p><strong>3.4 位选码表 poscode[8]</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="cm">/* poscode[0~7]：数码管位选码，低电平选中对应位 */</span>
+<span class="kt">short</span><span class="w"> </span><span class="n">poscode</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x7F</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBF</span><span class="p">,</span><span class="w"> </span><span class="mh">0xDF</span><span class="p">,</span><span class="w"> </span><span class="mh">0xEF</span><span class="p">,</span><span class="w"> </span><span class="mh">0xf7</span><span class="p">,</span><span class="w"> </span><span class="mh">0xfb</span><span class="p">,</span><span class="w"> </span><span class="mh">0xfd</span><span class="p">,</span><span class="w"> </span><span class="mh">0xfe</span><span class="p">};</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">poscode[i]</th>
+<th style="text-align: center;">对应位</th>
+<th style="text-align: center;">二进制</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">poscode[0]</td>
+<td style="text-align: center;">第1位</td>
+<td style="text-align: center;">0111 1111</td>
+<td>最左</td>
+</tr>
+<tr>
+<td style="text-align: center;">poscode[1]</td>
+<td style="text-align: center;">第2位</td>
+<td style="text-align: center;">1011 1111</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">poscode[2]</td>
+<td style="text-align: center;">第3位</td>
+<td style="text-align: center;">1101 1111</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">poscode[3]</td>
+<td style="text-align: center;">第4位</td>
+<td style="text-align: center;">1110 1111</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">poscode[4]</td>
+<td style="text-align: center;">第5位</td>
+<td style="text-align: center;">1111 0111</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">poscode[5]</td>
+<td style="text-align: center;">第6位</td>
+<td style="text-align: center;">1111 1011</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">poscode[6]</td>
+<td style="text-align: center;">第7位</td>
+<td style="text-align: center;">1111 1101</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">poscode[7]</td>
+<td style="text-align: center;">第8位</td>
+<td style="text-align: center;">1111 1110</td>
+<td>最右</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>四、按键掩码</h2>
+<div class="codehilite"><pre><span></span><code><span class="cm">/* GPIO2_CH1 低5位对应5个独立按键 */</span>
+<span class="cp">#define BTNC_MASK  0x01   </span><span class="c1">// 中间按键 C（bit0）</span>
+<span class="cp">#define BTNU_MASK  0x02   </span><span class="c1">// 上键 U（bit1）</span>
+<span class="cp">#define BTNL_MASK  0x04   </span><span class="c1">// 左键 L（bit2）</span>
+<span class="cp">#define BTNR_MASK  0x08   </span><span class="c1">// 右键 R（bit3）</span>
+<span class="cp">#define BTND_MASK  0x10   </span><span class="c1">// 下键 D（bit4）</span>
+</code></pre></div>
+
+<hr />
+<h2>五、中断掩码</h2>
+<div class="codehilite"><pre><span></span><code><span class="cm">/* 中断源编号（对应中断控制器连接顺序） */</span>
+<span class="cp">#define GPIO_2_IRQ_MASK  0x2   </span><span class="c1">// GPIO2（按键）中断掩码</span>
+<span class="cp">#define TIMER_0_IRQ_MASK 0x4   </span><span class="c1">// Timer0（T0+T1共用同一根中断线）中断掩码</span>
+</code></pre></div>
+
+<p><strong>注意：</strong> GPIO2是中断源1（bit1=0x2），Timer0是中断源2（bit2=0x4）。中断源编号取决于硬件连接，不同工程可能不同。</p>
+<hr />
+<h2>六、定时器掩码与配置</h2>
+<p><strong>6.1 定时器重装载值</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// T0：数码管动态扫描（~10μs/位）</span>
+<span class="cp">#define RESET_VALUE0  1000 - 2           </span><span class="c1">// 100MHz → 100kHz → 10μs</span>
+
+<span class="c1">// T1：基础周期</span>
+<span class="cp">#define RESET_VALUE1  100000000 - 2      </span><span class="c1">// 100MHz → 1s</span>
+<span class="cp">#define T1_TICK_halfS     50000000 - 2   </span><span class="c1">// 0.5s</span>
+<span class="cp">#define T1_TICK_quarterS  25000000 - 2   </span><span class="c1">// 0.25s</span>
+</code></pre></div>
+
+<p><strong>计算公式：</strong> 重装载值 = 时钟频率 × 目标周期 - 2<br />
+- 时钟频率 = 100MHz = 100,000,000 Hz<br />
+- 目标周期10μs：100M × 10μs - 2 = 1000 - 2<br />
+- 目标周期1s：100M × 1s - 2 = 100M - 2<br />
+- 目标周期0.5s：100M × 0.5s - 2 = 50M - 2</p>
+<p><strong>6.2 两个定时器的分工</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">定时器</th>
+<th>用途</th>
+<th style="text-align: center;">中断频率</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>T0</strong></td>
+<td>数码管动态扫描</td>
+<td style="text-align: center;">~10μs/位（100kHz）</td>
+<td>逐位刷新8个数码管，利用视觉暂留稳定显示</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>T1</strong></td>
+<td>周期控制（滚动/递增/流水灯）</td>
+<td style="text-align: center;">1s/0.5s/0.25s</td>
+<td>驱动数码管滚动显示、LED流水灯步进、计数器递增等</td>
+</tr>
+</tbody>
+</table>
+<p><strong>6.3 定时器初始化代码模板</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ===== T0初始化 =====</span>
+<span class="c1">// 1) 关闭定时器</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">,</span>
+<span class="w">          </span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="o">~</span><span class="n">XTC_CSR_ENABLE_TMR_MASK</span><span class="p">);</span>
+<span class="c1">// 2) 设置重装载值</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TLR_OFFSET</span><span class="p">,</span><span class="w"> </span><span class="n">RESET_VALUE0</span><span class="p">);</span>
+<span class="c1">// 3) 加载初值</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">,</span>
+<span class="w">          </span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">XTC_CSR_LOAD_MASK</span><span class="p">);</span>
+<span class="c1">// 4) 配置并启动：中断使能 | 自动重载 | 减计数 | 清中断标志 | 使能</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">,</span>
+<span class="w">          </span><span class="p">(</span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="o">~</span><span class="n">XTC_CSR_LOAD_MASK</span><span class="p">)</span><span class="w"> </span><span class="o">|</span>
+<span class="w">          </span><span class="n">XTC_CSR_ENABLE_INT_MASK</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">XTC_CSR_AUTO_RELOAD_MASK</span><span class="w"> </span><span class="o">|</span>
+<span class="w">          </span><span class="n">XTC_CSR_DOWN_COUNT_MASK</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">XTC_CSR_INT_OCCURED_MASK</span><span class="w"> </span><span class="o">|</span>
+<span class="w">          </span><span class="n">XTC_CSR_ENABLE_TMR_MASK</span><span class="p">);</span>
+
+<span class="c1">// ===== T1初始化 =====</span>
+<span class="c1">// 注：T1寄存器地址 = T0基址 + XTC_TIMER_COUNTER_OFFSET(0x10)</span>
+<span class="c1">// 1) 关闭</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">,</span>
+<span class="w">          </span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="o">~</span><span class="n">XTC_CSR_ENABLE_TMR_MASK</span><span class="p">);</span>
+<span class="c1">// 2) 设置重装载值</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TLR_OFFSET</span><span class="p">,</span><span class="w"> </span><span class="n">RESET_VALUE1</span><span class="p">);</span>
+<span class="c1">// 3) 加载</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">,</span>
+<span class="w">          </span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">XTC_CSR_LOAD_MASK</span><span class="p">);</span>
+<span class="c1">// 4) 配置并启动</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">,</span>
+<span class="w">          </span><span class="p">(</span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="o">~</span><span class="n">XTC_CSR_LOAD_MASK</span><span class="p">)</span><span class="w"> </span><span class="o">|</span>
+<span class="w">          </span><span class="n">XTC_CSR_ENABLE_INT_MASK</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">XTC_CSR_AUTO_RELOAD_MASK</span><span class="w"> </span><span class="o">|</span>
+<span class="w">          </span><span class="n">XTC_CSR_DOWN_COUNT_MASK</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">XTC_CSR_INT_OCCURED_MASK</span><span class="w"> </span><span class="o">|</span>
+<span class="w">          </span><span class="n">XTC_CSR_ENABLE_TMR_MASK</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h2>七、变量类型说明</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">类型</th>
+<th>常用场景</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><code>char</code></td>
+<td>段码值、按键值、低4位开关值、8位计数值</td>
+<td><code>char segcode[8]</code>, <code>char button</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>unsigned char</code></td>
+<td>无符号8位值</td>
+<td><code>unsigned char sw_val</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>short</code></td>
+<td>位选码（16位）</td>
+<td><code>short poscode[8]</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>unsigned short</code></td>
+<td>LED状态、16位开关值</td>
+<td><code>unsigned short led_val</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>int</code></td>
+<td>模式变量、计数器、循环变量、定时器状态</td>
+<td><code>int mode</code>, <code>int pos</code>, <code>int count</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意：</strong> 在MicroBlaze中，<code>char</code>默认是<code>signed char</code>，范围-128~127；当处理0~255范围时建议用<code>unsigned char</code>。</p>
+<hr />
+<h2>八、中断实现框架</h2>
+<p><strong>8.1 中断服务函数声明</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">My_ISR</span><span class="p">()</span><span class="w"> </span><span class="n">__attribute__</span><span class="w"> </span><span class="p">((</span><span class="n">interrupt_handler</span><span class="p">));</span>
+</code></pre></div>
+
+<p><strong>8.2 中断初始化步骤</strong></p>
+<ol>
+<li><strong>GPIO方向配置</strong>：开关→输入，LED→输出，数码管→输出，按键→输入</li>
+<li><strong>GPIO中断使能</strong>：清除ISR → 使能IER → 使能GIE</li>
+<li><strong>定时器初始化</strong>：T0(扫描) + T1(周期控制)</li>
+<li><strong>中断控制器配置</strong>：清除IAR → 设置IER → 设置MER</li>
+<li><strong>使能CPU全局中断</strong>：<code>microblaze_enable_interrupts()</code></li>
+</ol>
+<p><strong>8.3 主中断服务函数框架</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">My_ISR</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">INTC_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XIN_ISR_OFFSET</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">status</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="n">GPIO_2_IRQ_MASK</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">GPIO_2_IRQ_MASK</span><span class="p">)</span>
+<span class="w">        </span><span class="n">button_handle</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">status</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="n">TIMER_0_IRQ_MASK</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TIMER_0_IRQ_MASK</span><span class="p">)</span>
+<span class="w">        </span><span class="n">timer_handle</span><span class="p">();</span>
+
+<span class="w">    </span><span class="n">Xil_Out32</span><span class="p">(</span><span class="n">INTC_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XIN_IAR_OFFSET</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">);</span><span class="w">  </span><span class="c1">// 应答中断</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>8.4 定时器中断分发</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">timer_handle</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">timer_status</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 检查T0是否触发中断</span>
+<span class="w">    </span><span class="n">timer_status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">timer_status</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="n">XTC_CSR_INT_OCCURED_MASK</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">XTC_CSR_INT_OCCURED_MASK</span><span class="p">)</span>
+<span class="w">        </span><span class="n">timer0_handle</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// 检查T1是否触发中断（用if，不用else if，因为可能同时触发）</span>
+<span class="w">    </span><span class="n">timer_status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">timer_status</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="n">XTC_CSR_INT_OCCURED_MASK</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">XTC_CSR_INT_OCCURED_MASK</span><span class="p">)</span>
+<span class="w">        </span><span class="n">timer1_handle</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>8.5 T0中断处理（数码管动态扫描）</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">timer0_handle</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// 消影</span>
+<span class="w">    </span><span class="n">Xil_Out8</span><span class="p">(</span><span class="n">GPIO1_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_DATA_OFFSET</span><span class="p">,</span><span class="w">  </span><span class="mh">0xff</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Xil_Out8</span><span class="p">(</span><span class="n">GPIO1_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_DATA2_OFFSET</span><span class="p">,</span><span class="w"> </span><span class="mh">0xff</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 输出位码和段码</span>
+<span class="w">    </span><span class="n">Xil_Out8</span><span class="p">(</span><span class="n">GPIO1_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_DATA_OFFSET</span><span class="p">,</span><span class="w">  </span><span class="n">poscode</span><span class="p">[</span><span class="n">pos</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">Xil_Out8</span><span class="p">(</span><span class="n">GPIO1_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_DATA2_OFFSET</span><span class="p">,</span><span class="w"> </span><span class="n">segcode</span><span class="p">[</span><span class="n">pos</span><span class="p">]);</span>
+
+<span class="w">    </span><span class="c1">// 更新扫描位置</span>
+<span class="w">    </span><span class="n">pos</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 清除中断标志</span>
+<span class="w">    </span><span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">,</span>
+<span class="w">              </span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TCSR_OFFSET</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">XTC_CSR_INT_OCCURED_MASK</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>8.6 按键中断处理框架</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">button_handle</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Xil_In8</span><span class="p">(</span><span class="n">GPIO2_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_DATA_OFFSET</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0x1f</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 按键松开：清除中断后返回</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">button</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Xil_Out32</span><span class="p">(</span><span class="n">GPIO2_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_ISR_OFFSET</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">GPIO2_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_ISR_OFFSET</span><span class="p">));</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 按优先级判断：C → U → L → R → D</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">button</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="n">BTNC_MASK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// BTNC功能</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">button</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="n">BTNU_MASK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// BTNU功能</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">button</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="n">BTNL_MASK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// BTNL功能</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">button</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="n">BTNR_MASK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// BTNR功能</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">button</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="n">BTND_MASK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// BTND功能</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 清除中断标志</span>
+<span class="w">    </span><span class="n">Xil_Out32</span><span class="p">(</span><span class="n">GPIO2_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_ISR_OFFSET</span><span class="p">,</span>
+<span class="w">              </span><span class="n">Xil_In32</span><span class="p">(</span><span class="n">GPIO2_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_ISR_OFFSET</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2>九、代码逻辑总结</h2>
+<h3>9.1 二进制显示</h3>
+<p>从开关值中提取指定位，每个位显示"0"(0xc0)或"1"(0xf9)到对应数码管。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 方法：遍历4位，检查每位是否为1</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">low4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Xil_In8</span><span class="p">(</span><span class="n">GPIO0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_DATA_OFFSET</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0xf</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o"><</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">low4</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="p">(</span><span class="mh">0x8</span><span class="w"> </span><span class="o">>></span><span class="w"> </span><span class="n">i</span><span class="p">))</span><span class="w">      </span><span class="c1">// 检查第i位（从高位开始）</span>
+<span class="w">        </span><span class="n">segcode</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segtable_hex</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span><span class="w">  </span><span class="c1">// 显示"1"</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="n">segcode</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segtable_hex</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w">  </span><span class="c1">// 显示"0"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>9.2 十六进制显示（segtable_hex对应）</h3>
+<p>将开关值的低8位或低4位直接作为索引查段码表。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 低4位十六进制显示到最右1位</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">low4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Xil_In8</span><span class="p">(</span><span class="n">GPIO0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_DATA_OFFSET</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0xf</span><span class="p">;</span>
+<span class="n">segcode</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segtable_hex</span><span class="p">[</span><span class="n">low4</span><span class="p">];</span>
+
+<span class="c1">// 低8位十六进制显示到右2位</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">low8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Xil_In8</span><span class="p">(</span><span class="n">GPIO0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_DATA_OFFSET</span><span class="p">);</span>
+<span class="n">segcode</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segtable_hex</span><span class="p">[(</span><span class="n">low8</span><span class="w"> </span><span class="o">>></span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0xf</span><span class="p">];</span><span class="w">  </span><span class="c1">// 高4位</span>
+<span class="n">segcode</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segtable_hex</span><span class="p">[</span><span class="n">low8</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0xf</span><span class="p">];</span><span class="w">          </span><span class="c1">// 低4位</span>
+
+<span class="c1">// 16位十六进制显示到高4位</span>
+<span class="kt">unsigned</span><span class="w"> </span><span class="kt">short</span><span class="w"> </span><span class="n">sw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Xil_In16</span><span class="p">(</span><span class="n">GPIO0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_DATA_OFFSET</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o"><</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">segcode</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segtable_hex</span><span class="p">[(</span><span class="n">sw</span><span class="w"> </span><span class="o">>></span><span class="w"> </span><span class="p">(</span><span class="mi">12</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0xf</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>9.3 十进制显示</h3>
+<p>将数值按位分解，每位查段码表显示。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 方法：从高位到低位逐位提取</span>
+<span class="kt">unsigned</span><span class="w"> </span><span class="kt">short</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...;</span><span class="w">  </span><span class="c1">// 待显示数值</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o"><</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">digit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="w">    </span><span class="n">segcode</span><span class="p">[</span><span class="mi">7</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segtable_hex</span><span class="p">[</span><span class="n">digit</span><span class="p">];</span><span class="w">  </span><span class="c1">// 从最右开始</span>
+<span class="w">    </span><span class="n">val</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>9.4 数码管循环左移</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">char</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segcode</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w">              </span><span class="c1">// 保存最左端</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o"><</span><span class="w"> </span><span class="mi">7</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">segcode</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segcode</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span><span class="w">     </span><span class="c1">// 后一位覆盖前一位</span>
+<span class="p">}</span>
+<span class="n">segcode</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temp</span><span class="p">;</span><span class="w">                   </span><span class="c1">// 原最左端到最右端</span>
+</code></pre></div>
+
+<h3>9.5 数码管循环右移</h3>
+<div class="codehilite"><pre><span></span><code><span class="kt">char</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segcode</span><span class="p">[</span><span class="mi">7</span><span class="p">];</span><span class="w">              </span><span class="c1">// 保存最右端</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o"><</span><span class="w"> </span><span class="mi">7</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">segcode</span><span class="p">[</span><span class="mi">7</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">segcode</span><span class="p">[</span><span class="mi">6</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i</span><span class="p">];</span><span class="w"> </span><span class="c1">// 前一位覆盖后一位（从右向左遍历）</span>
+<span class="p">}</span>
+<span class="n">segcode</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temp</span><span class="p">;</span><span class="w">                   </span><span class="c1">// 原最右端到最左端</span>
+</code></pre></div>
+
+<h3>9.6 变速实现（定时器重装载值切换）</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 方法：切换T1的重装载值</span>
+<span class="c1">// 1s模式</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TLR_OFFSET</span><span class="p">,</span><span class="w"> </span><span class="n">T1_BASE_TICK</span><span class="p">);</span>
+<span class="c1">// 0.5s模式</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TLR_OFFSET</span><span class="p">,</span><span class="w"> </span><span class="n">T1_TICK_halfS</span><span class="p">);</span>
+<span class="c1">// 0.25s模式</span>
+<span class="n">Xil_Out32</span><span class="p">(</span><span class="n">TIMER0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TIMER_COUNTER_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XTC_TLR_OFFSET</span><span class="p">,</span><span class="w"> </span><span class="n">T1_TICK_quarterS</span><span class="p">);</span>
+</code></pre></div>
+
+<p>使用计数器实现循环切换：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">speed_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">speed_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Xil_Out32</span><span class="p">(...,</span><span class="w"> </span><span class="n">T1_BASE_TICK</span><span class="p">);</span><span class="w">     </span><span class="c1">// 1s</span>
+<span class="w">    </span><span class="n">speed_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">speed_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Xil_Out32</span><span class="p">(...,</span><span class="w"> </span><span class="n">T1_TICK_halfS</span><span class="p">);</span><span class="w">    </span><span class="c1">// 0.5s</span>
+<span class="w">    </span><span class="n">speed_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Xil_Out32</span><span class="p">(...,</span><span class="w"> </span><span class="n">T1_TICK_quarterS</span><span class="p">);</span><span class="w"> </span><span class="c1">// 0.25s</span>
+<span class="w">    </span><span class="n">speed_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>9.7 取反（带符号位处理）</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 题目7：符号位(bit3)不取反，低3位取反</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">low4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...;</span><span class="w">                   </span><span class="c1">// 读取低4位</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">sign</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">low4</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0x8</span><span class="p">;</span><span class="w">           </span><span class="c1">// 提取符号位</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">low4</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0x7</span><span class="p">;</span><span class="w">         </span><span class="c1">// 提取数值部分（低3位）</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">inverted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sign</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="o">~</span><span class="n">number</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0x7</span><span class="p">);</span><span class="w">  </span><span class="c1">// 符号位不变，低3位取反</span>
+</code></pre></div>
+
+<h3>9.8 补码计算</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 补码 = 取反 + 1（统一处理低3位）</span>
+<span class="kt">char</span><span class="w"> </span><span class="n">twos_comp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sign</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">((</span><span class="o">~</span><span class="n">number</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0x7</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>9.9 流水灯变速</h3>
+<p>T1中断中驱动LED流水灯步进，通过按键切换T1速度。</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">timer1_handle</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MODE_C</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ledbits</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ledbits</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">16</span><span class="p">)</span><span class="w"> </span><span class="n">ledbits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Xil_Out16</span><span class="p">(</span><span class="n">GPIO0_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">XGPIO_DATA2_OFFSET</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o"><<</span><span class="w"> </span><span class="n">ledbits</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>9.10 LED整体左移/右移</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 循环左移（16位）</span>
+<span class="kt">unsigned</span><span class="w"> </span><span class="kt">short</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">led_val</span><span class="p">;</span>
+<span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">val</span><span class="w"> </span><span class="o"><<</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0xFFFF</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">((</span><span class="n">val</span><span class="w"> </span><span class="o">>></span><span class="w"> </span><span class="mi">15</span><span class="p">)</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0x0001</span><span class="p">);</span>
+
+<span class="c1">// 循环右移（16位）</span>
+<span class="kt">unsigned</span><span class="w"> </span><span class="kt">short</span><span class="w"> </span><span class="n">lsb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">led_val</span><span class="w"> </span><span class="o">&</span><span class="w"> </span><span class="mh">0x0001</span><span class="p">;</span>
+<span class="n">led_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">led_val</span><span class="w"> </span><span class="o">>></span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">lsb</span><span class="w"> </span><span class="o"><<</span><span class="w"> </span><span class="mi">15</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h2>十、常见GPIO配置速查</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">外设</th>
+<th style="text-align: center;">基地址</th>
+<th style="text-align: center;">CH1方向</th>
+<th style="text-align: center;">CH2方向</th>
+<th>CH1用途</th>
+<th>CH2用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">GPIO0</td>
+<td style="text-align: center;">XPAR_AXI_GPIO_0_BASEADDR</td>
+<td style="text-align: center;">输入(0xffff)</td>
+<td style="text-align: center;">输出(0x0)</td>
+<td>16位开关</td>
+<td>16位LED</td>
+</tr>
+<tr>
+<td style="text-align: center;">GPIO1</td>
+<td style="text-align: center;">XPAR_AXI_GPIO_1_BASEADDR</td>
+<td style="text-align: center;">输出(0x0)</td>
+<td style="text-align: center;">输出(0x0)</td>
+<td>8位位选</td>
+<td>8位段码</td>
+</tr>
+<tr>
+<td style="text-align: center;">GPIO2</td>
+<td style="text-align: center;">XPAR_AXI_GPIO_2_BASEADDR</td>
+<td style="text-align: center;">输入(0x1f)</td>
+<td style="text-align: center;">—</td>
+<td>5位按键</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>```c<br />
+// 初始化配置<br />
+Xil_Out16(GPIO0_BASE + XGPIO_TRI_OFFSET,  0xffff);   // GPIO0_CH1: 开关→输入<br />
+Xil_Out16(GPIO0_BASE + XGPIO_TRI2_OFFSET, 0x0);       // GPIO0_CH2: LED→输出<br />
+Xil_Out8( GPIO1_BASE + XGPIO_TRI_OFFSET,  0x0);       // GPIO1_CH1: 位选→输出<br />
+Xil_Out8( GPIO1_BASE + XGPIO_TRI2_OFFSET, 0x0);       // GPIO1_CH2: 段码→输出<br />
+Xil_Out8( GPIO2_BASE + XGPIO_TRI_OFFSET,  0x1f);      // GPIO2_CH1: 按键→输入</p>
+    </div>
+</body>
+</html>

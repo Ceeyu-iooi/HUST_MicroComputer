@@ -1,28 +1,198 @@
 # Vitis 工作区项目总览
 
-本工作区 (`d:/Vivado/Vitis/Projects`) 包含 MicroBlaze 嵌入式平台的 Platform 项目与 Application 项目。
+## 目录
 
-## Platform 项目（硬件平台）
+- [Vitis 工作区项目总览](#vitis-工作区项目总览)
+  - [目录](#目录)
+  - [硬件平台（Platform Projects）](#硬件平台platform-projects)
+  - [软件应用（Application Projects）](#软件应用application-projects)
+    - [并行 IO 任务（对应三个软件工程）](#并行-io-任务对应三个软件工程)
+    - [串行 IO 任务（对应 UART）](#串行-io-任务对应-uart)
+    - [其他应用](#其他应用)
+  - [各工程 README 索引](#各工程-readme-索引)
+    - [并行 IO 任务（三种驱动方式）](#并行-io-任务三种驱动方式)
+    - [串行 IO 任务](#串行-io-任务)
+  - [软件源码（共用平台源码）](#软件源码共用平台源码)
+    - [代码与题目对应表](#代码与题目对应表)
+  - [期末备考](#期末备考)
+    - [备考文档](#备考文档)
+    - [题目源码与说明（12 题）](#题目源码与说明12-题)
+    - [备考要点速览](#备考要点速览)
+  - [目录结构速览](#目录结构速览)
+
+---
+
+## 硬件平台（Platform Projects）
 
 | 项目 | XSA 文件 | 硬件配置说明 |
 |------|---------|-------------|
-| `CPU_INT` | `CPU_Int_wrapper.xsa` | 基础中断平台：含 INTC（中断控制器）、AXI GPIO×3、AXI Timer。用于需要通过中断方式驱动开关/按键/数码管的场景。 |
-| `CPU_INT_TIMER` | `CPU_INT_wrapper.xsa` | 增强中断平台：与 CPU_INT 硬件结构类似（含 INTC、AXI GPIO×3、AXI Timer），XSA 来源不同（来自 CPU_noInt 工程）。用于需要定时器+中断联合控制的复杂交互场景。 |
-| `CPU_noint` | `CPU_noint_wrapper.xsa` | 无中断平台：仅含 AXI GPIO×3（开关、LED、按键、数码管），**无 INTC、无 AXI Timer**。适合仅用轮询方式读取外设的简单应用。 |
+| `CPU_noint` | `CPU_noint_wrapper.xsa` | **无中断平台**：仅含 AXI GPIO×3（开关、LED、按键、数码管），**无 INTC、无 AXI Timer**。适合纯轮询方式读取外设的简单应用。 |
+| `CPU_INT` | `CPU_Int_wrapper.xsa` | **基础中断平台**：含 INTC（中断控制器）、AXI GPIO×3、AXI Timer，支持快速中断模式。用于中断方式驱动开关/按键/数码管的场景。 |
+| `CPU_INT_TIMER` | `CPU_INT_wrapper.xsa` | **增强中断平台**：与 CPU_INT 硬件结构类似（INTC + AXI GPIO×3 + AXI Timer），XSA 来源不同。用于需要定时器+中断联合控制的复杂交互场景。 |
+| `CPU_UART` | `CPU_UART_wrapper.xsa` | **UART 通信平台**：在 CPU_INT_TIMER 基础上增加 AXI UARTLite×2（UART1 + UART2），支持双 MicroBlaze 串口通信。 |
+| `CPU_SPI` | `CPU_SPI_wrapper.xsa` | **SPI 通信平台**：在 CPU_INT_TIMER 基础上增加 AXI Quad SPI 模块，支持 SPI 主从通信。 |
 
-所有 Platform 均使用 `microblaze_0` 处理器，OS 为 `standalone`，domain 为 `standalone_microblaze_0`。
+---
 
-## Application 项目（软件应用）
+## 软件应用（Application Projects）
+
+### 并行 IO 任务（对应三个软件工程）
 
 | Application | 对应 Platform | 驱动方式 | 功能说明 |
 |-------------|-------------|---------|---------|
-| `CPU_qq` | `CPU_INT` | 轮询 | **最简单的 GPIO 测试程序**。主循环轮询 GPIO ISR 寄存器检测 16 位拨码开关状态变化，一旦变化则同步点亮对应 LED 并通过 UART 打印开关值。不涉及按键、数码管、定时器或中断服务程序。 |
-| `TASK_FAST_INT` | `CPU_INT_TIMER` | 中断 | **完整的中断驱动交互程序**（与 TASK_INT_0 功能基本相同）。通过 INTC 统一管理三类中断：① 拨码开关中断（GPIO_0 → 点亮 LED + UART 打印）；② 按键中断（GPIO_2 → 解析按键，将字符 C/U/L/R/d 的段码滚动存入显示缓冲区）；③ 定时器中断（Timer_0 → 每 ~10µs 扫描 1 位数码管，8 位循环实现动态显示）。ISR 中按键松手检测使用忙等待（会短暂阻塞其他中断）。 |
-| `TASK_INT_0` | `CPU_INT_TIMER` | 中断 | **中断驱动交互程序**。功能与 TASK_FAST_INT 基本相同（开关中断 + 按键中断 + 定时器扫描 8 位数码管），区别在于按键处理逻辑：按键松开时不做处理（直接返回），仅按键按下时处理并更新显示缓冲区。 |
-| `TASK_NOINT_` | `CPU_noint` | 轮询 | **全轮询方式交互程序**。不使用任何硬件中断和定时器。主循环中通过轮询 GPIO 数据寄存器检测按键按下，软件延时循环扫描 8 位数码管，在延时间隙中轮询 GPIO ISR 寄存器检测开关变化。按键按下期间数码管停止显示（等松手后才恢复扫描）。 |
+| `TASK_NOINT_` | `CPU_noint` | 轮询（Polling） | **全轮询方式交互程序**。不使用任何硬件中断和定时器。主循环中通过轮询 GPIO 数据寄存器检测按键，软件延时循环扫描 8 位数码管，在延时间隙中轮询 GPIO ISR 寄存器检测开关变化。按键按下期间数码管暂停显示。 |
+| `TASK_INT_0` | `CPU_INT_TIMER` | 普通中断（Normal Interrupt） | **中断驱动交互程序**。统一 ISR 入口 `My_ISR()`，软件读取 INTC ISR 寄存器分发中断。开关中断控制 LED，按键中断更新数码管缓冲区，定时器中断驱动 8 位数码管动态扫描（~10µs/位）。 |
+| `TASK_FAST_INT` | `CPU_INT` | 快速中断（Fast Interrupt） | **快速中断交互程序**。每个 ISR 独立声明 `__attribute__((fast_interrupt))`，硬件直接通过 IVAR 向量跳转，无需软件分发。功能同 TASK_INT_0，但中断响应延迟更低。 |
 
-## 项目类型判断依据
+> 三种驱动方式的详细对比见 `并行IO设计说明/readme.md`。
 
-- `vitis-comp.json` 中 `"type": "PLATFORM"` → 硬件平台项目
-- `vitis-comp.json` 中 `"type": "HOST"` → 软件应用项目
-- `platform/` 目录当前为空
+### 串行 IO 任务（对应 UART）
+
+| Application | 对应 Platform | 驱动方式 | 功能说明 |
+|-------------|-------------|---------|---------|
+| `UART` | `CPU_UART` | 普通中断 | **双 UART 通信程序**。开关中断触发 → UART1 TX → UART2 RX → LED 显示（16 位分高/低 8 位两字节传输）；按键中断触发 → UART2 TX → UART1 RX → 数码管段码缓冲区更新。定时器驱动 8 位数码管动态扫描。 |
+
+> 串行 IO 设计的详细硬件升级说明见 `串行IO设计/readme.md`。
+
+### 其他应用
+
+| Application | 对应 Platform | 驱动方式 | 功能说明 |
+|-------------|-------------|---------|---------|
+| `CPU_qq` | `CPU_INT` | 轮询 | 最简单的 GPIO 测试程序。主循环轮询 GPIO ISR 寄存器检测 16 位拨码开关状态变化，同步点亮对应 LED 并通过 UART 打印。不涉及按键、数码管、定时器或中断。 |
+| `Test` | `CPU_INT_TIMER` | 中断 | **多功能显示测试程序**。5 个按键对应 5 种模式：C=流水灯（3 档速度）、L=LED 反映开关/循环左移、D=左边 4 位数码管+LED 奇数位亮、R=右边 4 位数码管+LED 偶数位亮、U=低 4 位带符号十进制滚动显示（2 档速度）。 |
+
+---
+
+## 各工程 README 索引
+
+### 并行 IO 任务（三种驱动方式）
+
+| 工程 | README | 流程图 |
+|------|--------|--------|
+| `TASK_NOINT_` | `TASK_NOINT_/readme.md` | `并行IO设计说明/TASK_NOINT_流程图_Mermaid.txt` |
+| `TASK_INT_0` | `TASK_INT_0/readme.md` | `并行IO设计说明/TASK_INT_0_流程图_Mermaid.txt` |
+| `TASK_FAST_INT` | `TASK_FAST_INT/readme.md` | `并行IO设计说明/TASK_FAST_INT_流程图_Mermaid.txt` |
+
+> 三种方式的设计思路详细对比（含硬件要求、初始化流程、ISR 结构、中断响应路径、适用场景等）见 `并行IO设计说明/readme.md` 及 `并行IO设计说明/三种代码设计思路对比.docx`。
+
+### 串行 IO 任务
+
+| 工程 | README | 硬件升级说明 |
+|------|--------|-------------|
+| `UART` | `UART/readme.md` | `串行IO设计/CPU_INT_TIMER到CPU_UART硬件升级说明.md` |
+
+> 串行 IO 设计的完整说明（含 UART IP 核添加步骤、Vivado Block Design 配置、双 UART 通信协议等）见 `串行IO设计/readme.md`。
+
+---
+
+## 软件源码（共用平台源码）
+
+以下源码基于 `CPU_INT_TIMER` 平台，使用普通中断模式 + `xil_io` 寄存器级编程，与实验题目一一对应。源码与对应题目说明见 `微机原理实验备考/` 目录。
+
+### 代码与题目对应表
+
+| 题目 | 对应.c | 对应.md | 功能说明 |
+|------|--------|---------|----------|
+| 0 | — | — | GPIO 初始化 + INTC 初始化 + Timer 初始化 标准模板 |
+| 1 | `test1.c` | `test1.md` | LED 实时 + 全部数码管显示按键字符（C/U/L/R/D） |
+| 2 | `test2.c` | `test2.md` | LED 实时 + 数码管依次显示按键字符 |
+| 3 | `test3.c` | `test3.md` | 定时器 1 秒 + 数码管 1 位循环 0~F（按键切换位置） |
+| 4 | `test4.c` | `test4.md` | 定时器 1 秒 + 数码管第 1 位自动递增 0~F |
+| 5 | `test5.c` | `test5.md` | 开关低 4 位十六进制 + 数码管 4 位 16 进制显示 + LED 实时 |
+| 6 | `test6.c` | `test6.md` | 开关 16 进制显示 + L 左移 / R 右移 |
+| 7 | `test7.c` | `test7.md` | 开关 16 进制显示 + C 高 8 位 / R 低 8 位 |
+| 8 | `test8.c` | `test8.md` | 开关 16 进制显示 + C 自左移 / R 自右移（移出变 0） |
+| 9 | `test9.c` | `test9.md` | 开关 16 进制显示 + C 左移 / R 右移 / L 低 8 位 / U 停止 |
+| 10 | `test10.c` | `test10.md` | 开关 16 进制显示 + C 最低位 / R 自动左右移循环 |
+| 11 | `test11.c` | `test11.md` | 开关 16 位拆分为高 8 位左右移 + 低 8 位左右移 |
+| 12 | `test12.c` | `test12.md` | 滚动显示"3456" + C 开始 / L 左移 / R 右移 / U 停止 |
+
+---
+
+## 期末备考
+
+> 📁 目录：`微机原理实验备考/`
+
+### 备考文档
+
+| 文件 | 说明 |
+|------|------|
+| `微机原理实验备考文档.md` | 综合备考总结：硬件平台清单、共阳段码表/位码表、全局变量模板、中断初始化模板、ISR 标准结构、核心 C 语言逻辑、常见 BUG 汇总、考试建议优先级 |
+| `微机原理实验题目.md` | 12 道实验题目完整说明（含功能要求、设备清单、评分要点、步骤提示） |
+| `template.c` | 标准代码模板（含 GPIO/INTC/Timer 初始化完整代码框架） |
+
+### 题目源码与说明（12 题）
+
+每题均配有 `.c` 源码和 `.md` 题目说明：
+
+| 题号 | 源码 | 题目说明 | 难度 |
+|------|------|---------|------|
+| 1 | `test1.c` | `test1.md` | ★★☆ |
+| 2 | `test2.c` | `test2.md` | ★★☆ |
+| 3 | `test3.c` | `test3.md` | ★★★ |
+| 4 | `test4.c` | `test4.md` | ★★☆ |
+| 5 | `test5.c` | `test5.md` | ★☆☆ |
+| 6 | `test6.c` | `test6.md` | ★★☆ |
+| 7 | `test7.c` | `test7.md` | ★★☆ |
+| 8 | `test8.c` | `test8.md` | ★★★ |
+| 9 | `test9.c` | `test9.md` | ★★★ |
+| 10 | `test10.c` | `test10.md` | ★★★ |
+| 11 | `test11.c` | `test11.md` | ★★★ |
+| 12 | `test12.c` | `test12.md` | ★★★★ |
+
+### 备考要点速览
+
+- **硬件设备**：GPIO_0（开关 16 位输入 + LED 16 位输出）、GPIO_1（位选 8 位输出 + 段码 8 位输出）、GPIO_2（按键 5 位输入）、Timer_0（定时器）、INTC_0（中断控制器）
+- **段码/位码**：共阳极数码管段码 0~F 完整表 + "3 位相同"助记口诀、位码 0x7F~0xFE
+- **中断系统**：GPIO 中断使能流程、Timer 初始化流程、INTC 初始化流程、My_ISR 标准结构
+- **核心操作**：开关读取、按键消抖（延时+再次确认）、动态扫描、十六进制拆分、移位操作、慢速计数器
+
+---
+
+## 目录结构速览
+
+```
+d:/Vivado/Vitis/Projects/
+├── README.md                          # 本文件（总览索引）
+│
+├── 并行IO设计说明/                     # 并行 IO 设计文档
+│   ├── readme.md                      # 三种驱动方式总览与对比
+│   ├── 三种代码设计思路对比.docx       # 轮询/普通中断/快速中断对比
+│   ├── CPU_INT_TIMER_关键头文件总结.docx
+│   ├── TASK_FAST_INT_流程图_Mermaid.txt
+│   ├── TASK_INT_0_流程图_Mermaid.txt
+│   └── TASK_NOINT_流程图_Mermaid.txt
+│
+├── 串行IO设计/                        # 串行 IO 设计文档
+│   ├── readme.md                      # UART 硬件升级概要
+│   └── CPU_INT_TIMER到CPU_UART硬件升级说明.md
+│
+├── 微机原理实验备考/                   # 备考资料
+│   ├── 微机原理实验备考文档.md          # 综合备考总结
+│   ├── 微机原理实验题目.md             # 12 道实验题目
+│   ├── template.c                     # 标准代码模板
+│   ├── test1.c ~ test12.c             # 12 道题目源码
+│   └── test1.md ~ test12.md           # 12 道题目说明
+│
+├── TASK_NOINT_/                       # 轮询方式
+│   └── readme.md                      # 详细说明（含消影原理分析）
+│
+├── TASK_INT_0/                        # 普通中断方式
+│   └── readme.md                      # 详细说明（含 Vivado 配置要求）
+│
+├── TASK_FAST_INT/                     # 快速中断方式
+│   └── readme.md                      # 详细说明（含 IVAR/IMR 配置）
+│
+├── UART/                              # 双 UART 通信
+│   └── readme.md                      # 详细说明（含通信协议）
+│
+├── CPU_noint/                         # 硬件平台：无中断
+├── CPU_INT/                           # 硬件平台：基础中断
+├── CPU_INT_TIMER/                     # 硬件平台：增强中断
+├── CPU_UART/                          # 硬件平台：UART
+├── CPU_SPI/                           # 硬件平台：SPI
+├── CPU_qq/                            # 应用：GPIO 简易测试
+├── Test/                              # 应用：多功能显示测试
+│
+└── Test/src/                          # 测试代码
+    └── test.c

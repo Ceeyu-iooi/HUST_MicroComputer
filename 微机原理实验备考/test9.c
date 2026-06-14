@@ -10,10 +10,10 @@
 #include "mb_interface.h"
 
 /* ========== 宏定义 ========== */
-#define RESET_VALUE0  1000 - 2           // T0定时器重装载值（100MHz时钟约10μs），用于数码管动态扫描
-#define T1_BASE_TICK  100000000 - 2       // T1定时器基础周期（100MHz时钟约0.25s），作为软件分频的基频
-#define T1_TICK_halfS    50000000-2                   // T1基础周期的计数值达到4时即1s（4×0.25s=1s）
-#define T1_TICK_quarterS 25000000-2                   // T1基础周期的计数值达到2时即0.5s（2×0.25s=0.5s）
+#define RESET_VALUE0  1000 - 2           // T0: 重装载值=1000，100MHz时钟→100kHz→10μs，驱动数码管动态扫描
+#define T1_BASE_TICK  100000000 - 2       // T1: 重装载值=100M，100MHz时钟→1s（基础周期=1秒）
+#define T1_TICK_halfS    50000000-2       // T1: 半秒重装载值=50M，100MHz时钟→0.5s
+#define T1_TICK_quarterS 25000000-2       // T1: 四分之一秒重装载值=25M，100MHz时钟→0.25s
 int count = 0;
 int count1=0;
 int count2=0;
@@ -23,18 +23,18 @@ int count2=0;
 
 /* 按键位掩码（GPIO2_CH1 低5位对应5个独立按键） */
 #define BTNC_MASK  0x01                  // 中间按键 C（bit0）
-#define BTNR_MASK  0x08                  // 右键 R（bit1）
+#define BTNR_MASK  0x08                  // 右键 R（bit3）
 #define BTNL_MASK  0x04                  // 左键 L（bit2）
-#define BTND_MASK  0x10                  // 下键 D（bit3）
-#define BTNU_MASK  0x02                  // 上键 U（bit4）
+#define BTND_MASK  0x10                  // 下键 D（bit4）
+#define BTNU_MASK  0x02                  // 上键 U（bit1）
 
 /* 显示模式 */
 #define MODE_IDLE  0                     // 初始空闲模式
 #define MODE_C     1                     // 按键C：数码管熄灭+流水灯（速度1s/0.5s/0.25s循环）
-#define MODE_L     2                     // 按键L：LED反映开关+数码管循环左移
-#define MODE_D     3                     // 按键D：左4位显示开关二进制+LED奇数位亮
-#define MODE_R     4                     // 按键R：右4位显示反码+LED偶数位亮
-#define MODE_U     5                     // 按键U：滚动显示十进制+LED反映开关
+#define MODE_U     2                     // 按键U：右2位显示原码十进制+T1驱动左移滚动（1s/0.5s循环）
+#define MODE_L     3                     // 按键L：LED显示16位开关值，再按循环左移16次后复位
+#define MODE_R     4                     // 按键R：右4位二进制反码+LED偶数位亮(0xAAAA)
+#define MODE_D     5                     // 按键D：左4位二进制+LED奇数位亮(0x5555)
 
 /* ========== 段码表（0~9, A~F） ========== */
 /* 共阳极数码管段码：dp g f e d c b a，0=亮、1=灭 */
@@ -119,7 +119,7 @@ void Initialization(void)
               XTC_CSR_DOWN_COUNT_MASK | XTC_CSR_INT_OCCURED_MASK |
               XTC_CSR_ENABLE_TMR_MASK);
 
-    /* ---- T1 定时器初始化（0.25s基础周期，软件分频实现不同速度） ---- */
+    /* ---- T1 定时器初始化（1s基础周期，软件分频实现不同速度） ---- */
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET,
               Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TCSR_OFFSET) & ~XTC_CSR_ENABLE_TMR_MASK);
     Xil_Out32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TIMER_COUNTER_OFFSET + XTC_TLR_OFFSET, T1_BASE_TICK);
@@ -194,10 +194,10 @@ void timer0_handle(void)
               Xil_In32(XPAR_AXI_TIMER_0_BASEADDR + XTC_TCSR_OFFSET) | XTC_CSR_INT_OCCURED_MASK);
 }
 
-/* ========== T1 定时器中断处理函数（0.25s基础周期） ========== */
+/* ========== T1 定时器中断处理函数（基础周期初始为1s，按键可切换速度） ========== */
 /* 功能：根据当前模式执行周期性操作
- * MODE_A：流水灯按速度流动
- * MODE_E：十进制数按速度滚动
+ * MODE_C（BTNC）：流水灯按速度步进（初始=0.5s，再按=0.25s，循环）
+ * MODE_U（BTNU）：十进制滚动左移（初始=1s，再按=0.5s，循环）
  * 其他模式：不做周期性操作 */
 void timer1_handle(void)
 {
@@ -269,7 +269,7 @@ void button_handle(void)
     else if (button & BTNU_MASK)
     {
         for (int i = 0; i < 6; i++)
-            segcode[i] = 0xff;  // 
+            segcode[i] = 0xff;  // 左6位数码管熄灭（数值显示在最右2位）
         mode=MODE_U;
         
         char low4 = Xil_In8(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA_OFFSET) & 0xf;
@@ -313,8 +313,7 @@ void button_handle(void)
             }
             else 
             {
-                //sw_current=((sw_current<<1)&0xffff)|((sw_current&0x8000)>>15);// 左移一位
-                sw_current=(sw_current&0x7fff)|((sw_current>>15)&0x0001);// 左移一位，符号位补0
+                sw_current = ((sw_current << 1) & 0xFFFF) | ((sw_current >> 15) & 0x0001); // 循环左移：最高位移出后从最低位补入
                 Xil_Out16(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, sw_current);// 显示开关值
                 count2++;
                 if(count2==16)

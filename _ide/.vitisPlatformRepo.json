@@ -1,8 +1,8 @@
 [
-  "D:\\Vivado\\Vitis\\Projects\\CPU_UART\\export\\CPU_UART",
-  "D:\\Vivado\\Vitis\\Projects\\CPU_INT\\export\\CPU_INT",
-  "D:\\Vivado\\Vitis\\Projects\\platform\\export\\platform",
-  "D:\\Vivado\\Vitis\\Projects\\CPU_noint\\export\\CPU_noint",
   "D:\\Vivado\\Vitis\\Projects\\CPU_SPI\\export\\CPU_SPI",
+  "D:\\Vivado\\Vitis\\Projects\\CPU_noint\\export\\CPU_noint",
+  "D:\\Vivado\\Vitis\\Projects\\platform\\export\\platform",
+  "D:\\Vivado\\Vitis\\Projects\\CPU_INT\\export\\CPU_INT",
+  "D:\\Vivado\\Vitis\\Projects\\CPU_UART\\export\\CPU_UART",
   "D:\\Vivado\\Vitis\\Projects\\CPU_INT_TIMER\\export\\CPU_INT_TIMER"
 ]

@@ -84,3 +84,5 @@ comp.build()
 
 client.delete_component(name="CPU_INT_TIMER")
 
+vitis.dispose()
+
